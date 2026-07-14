@@ -1,4 +1,5 @@
 import std/[os, posix, strutils]
+import ./private/noise
 
 import ./types
 
@@ -66,3 +67,33 @@ proc makePrompt*(lastExitCode: int, pc: PromptConfig, branch: string): string =
     parts[^1] = parts[^1] & " " & foreground("git:(" & branch & ")", ckYellow)
   let arrow = if lastExitCode == 0: foreground("›", ckMagenta) else: foreground("›", ckRed)
   result = parts.join(" ") & " " & arrow & " "
+
+proc colorToFg(c: ColorKind): ForegroundColor =
+  ForegroundColor(ord(c) + 30)
+
+proc makePromptStyler*(lastExitCode: int, pc: PromptConfig, branch: string): Styler =
+  result = newStyler()
+  if pc.user:
+    result.addCmd(colorToFg(ckGreen))
+    result.addCmd(user())
+    result.addCmd(resetStyle)
+  if pc.host:
+    if pc.user:
+      result.addCmd("@")
+    result.addCmd(colorToFg(ckBlue))
+    result.addCmd(host())
+    result.addCmd(resetStyle)
+  let cwd = getCwd()
+  result.addCmd(colorToFg(ckCyan))
+  result.addCmd(if pc.cwdShort: cwd.splitPath().tail else: tilde(cwd))
+  result.addCmd(resetStyle)
+  if branch.len > 0:
+    result.addCmd(" ")
+    result.addCmd(colorToFg(ckYellow))
+    result.addCmd("git:(" & branch & ")")
+    result.addCmd(resetStyle)
+  result.addCmd(" ")
+  result.addCmd(colorToFg(if lastExitCode == 0: ckMagenta else: ckRed))
+  result.addCmd("›")
+  result.addCmd(resetStyle)
+  result.addCmd(" ")

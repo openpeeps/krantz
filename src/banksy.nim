@@ -1,8 +1,9 @@
-import std/[strutils, os]
-
-import banksy/[config, history, parser, executor, policy, prompt, term, types]
+import std/[algorithm, strutils, os]
+import ./banksy/private/noise
+import banksy/[config, env, history, parser, executor, policy, prompt, term, types]
 
 proc runShell() =
+  loadShellEnv()
   let cfg = loadConfig()
   let engine = newPolicyEngine(cfg)
   var state = ShellState(
@@ -14,14 +15,12 @@ proc runShell() =
   )
   openHistoryStore(state)
   var historyList = loadAllHistory(state)
-  var histIdx = -1
-  var histIndices: seq[int]
-  var savedNewInput = ""
 
   let interactive = isTerminal(0)
-  var termMode: ConsoleMode
   if interactive:
-    termMode = enableRawMode()
+    initTerminal()
+    for h in historyList:
+      gNoise.historyAdd(h)
 
   while not state.shouldExit:
     let cwd = getCurrentDir()
@@ -31,65 +30,28 @@ proc runShell() =
 
     let promptStr = makePrompt(state.lastExitCode, state.config.prompt, state.cachedBranch)
 
-    var buf = ""
     var line = ""
 
-    block readInput:
-      if interactive:
-        prevBufLen = 0
-        redraw(promptStr, buf)
-      while true:
-        if interactive:
-          let result = readLine(promptStr, buf)
-          case result.kind
-          of rrLine:
-            line = result.line
-            histIdx = -1
-            break readInput
-          of rrCancel:
-            buf.setLen(0)
-            histIdx = -1
-            prevBufLen = 0
-            redraw(promptStr, buf)
-            continue
-          of rrEof:
-            state.shouldExit = true
-            break readInput
-          of rrNav:
-            if histIdx == -1:
-              savedNewInput = buf
-              histIndices = @[]
-              for i in countdown(historyList.high, 0):
-                if historyList[i].startsWith(buf):
-                  histIndices.add(i)
-              if histIndices.len > 0:
-                histIdx = 0
-                buf = historyList[histIndices[0]]
-                redraw(promptStr, buf)
-            elif result.navUp:
-              if histIdx < histIndices.high:
-                inc histIdx
-                buf = historyList[histIndices[histIdx]]
-                redraw(promptStr, buf)
-            else:
-              if histIdx > 0:
-                dec histIdx
-                buf = historyList[histIndices[histIdx]]
-                redraw(promptStr, buf)
-              else:
-                histIdx = -1
-                buf = savedNewInput
-                redraw(promptStr, buf)
-            continue
-        else:
-          stdout.write(promptStr)
-          stdout.flushFile()
-          try:
-            line = stdin.readLine()
-          except EOFError:
-            echo ""
-            state.shouldExit = true
-          break readInput
+    if interactive:
+      let promptStyler = makePromptStyler(state.lastExitCode, state.config.prompt, state.cachedBranch)
+      let (success, input) = readLineInput(promptStyler)
+      if not success:
+        let kt = gNoise.getKeyType()
+        if kt == ktCtrlD:
+          echo ""
+          state.shouldExit = true
+          break
+        continue
+      line = input
+    else:
+      stdout.write(promptStr)
+      stdout.flushFile()
+      try:
+        line = stdin.readLine()
+      except EOFError:
+        echo ""
+        state.shouldExit = true
+        break
 
     let trimmed = line.strip()
     if trimmed.len == 0:
@@ -112,13 +74,12 @@ proc runShell() =
       state.lastExitCode = 1
     else:
       state.lastExitCode = executeParsedLine(parsed, state)
-      if trimmed.split()[0] != "history" and trimmed.split()[0] != "exit":
+      let cmdName = trimmed.split()[0]
+      if cmdName != "history" and cmdName != "exit":
         if historyList.len == 0 or historyList[^1] != trimmed:
           addHistory(state, trimmed)
           historyList.add(trimmed)
-
-  if interactive:
-    disableRawMode(termMode)
+          gNoise.historyAdd(trimmed)
 
 proc printUsage() =
   echo "Usage: banksy [command]"
@@ -130,9 +91,34 @@ proc printUsage() =
   echo "  config deny list     List denied commands"
   echo "  config deny add      <cmd>  Add command to deny list"
   echo "  config deny remove   <cmd>  Remove command from deny list"
+  echo "  complete <word>      Generate shell completions"
   echo "  help                 Show this help"
   echo ""
   echo "Run without arguments to enter the REPL shell."
+
+proc doComplete(word: string) =
+  var dir = "."
+  var prefix = word
+
+  if word.contains("/"):
+    dir = word.parentDir().expandTilde()
+    prefix = word.extractFilename()
+  else:
+    dir = "."
+    prefix = word
+
+  var candidates: seq[string]
+  try:
+    for kind, path in walkDir(dir):
+      let name = path.extractFilename()
+      if name.len >= prefix.len and name.toLowerAscii()[0..<prefix.len] == prefix.toLowerAscii():
+        candidates.add(name)
+  except OSError:
+    discard
+  if candidates.len > 0:
+    sort(candidates, cmpIgnoreCase)
+    for c in candidates:
+      echo c
 
 proc dispatchCli(args: seq[string]) =
   if args.len == 0 or args[0] in ["help", "--help", "-h"]:
@@ -157,6 +143,12 @@ proc dispatchCli(args: seq[string]) =
         quit(1)
     else:
       stderr.writeLine "usage: banksy config [init|show|deny]"
+      quit(1)
+  of "complete":
+    if args.len >= 2:
+      doComplete(args[1])
+    else:
+      stderr.writeLine "usage: banksy complete <word>"
       quit(1)
   else:
     stderr.writeLine "banksy: unknown command: ", args[0]
