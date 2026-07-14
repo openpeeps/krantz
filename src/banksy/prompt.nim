@@ -60,8 +60,9 @@ proc makePrompt*(lastExitCode: int, pc: PromptConfig, branch: string): string =
       parts[^1] = parts[^1] & "@" & foreground(host(), ckBlue)
     else:
       parts.add(foreground(host(), ckBlue))
-  parts.add(foreground(tilde(getCwd()), ckCyan))
+  let cwd = getCwd()
+  parts.add(foreground(if pc.cwdShort: cwd.splitPath().tail else: tilde(cwd), ckCyan))
   if branch.len > 0:
-    parts[^1] = parts[^1] & " " & foreground("(" & branch & ")", ckYellow)
+    parts[^1] = parts[^1] & " " & foreground("git:(" & branch & ")", ckYellow)
   let arrow = if lastExitCode == 0: foreground("›", ckMagenta) else: foreground("›", ckRed)
   result = parts.join(" ") & " " & arrow & " "

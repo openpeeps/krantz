@@ -170,5 +170,24 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
           state.lastExitCode = 0
           continue
 
+        if cmdName == "trash":
+          if firstCmd.args.len == 1:
+            stderr.writeLine("banksy: trash: missing operand")
+            result = 1
+            state.lastExitCode = 1
+            continue
+          let trashDir = getHomeDir() / ".Trash"
+          var hadError = false
+          for i in 1..<firstCmd.args.len:
+            let src = firstCmd.args[i]
+            try:
+              moveFile(src, trashDir / src.splitPath().tail)
+            except OSError:
+              stderr.writeLine("banksy: trash: cannot move '" & src & "': No such file or directory")
+              hadError = true
+          result = if hadError: 1 else: 0
+          state.lastExitCode = result
+          continue
+
     result = executePipeline(pipe)
     state.lastExitCode = result

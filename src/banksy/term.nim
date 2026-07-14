@@ -8,9 +8,12 @@ const
   ICRNL = culong(0x00000100)
   IXON = culong(0x00000200)
   OPOST = culong(0x00000001)
+  TCSANOW = 0
+  TCSADRAIN = 1
   TCSAFLUSH = 2
   VMIN = 16
   VTIME = 17
+  TIOCGWINSZ = 0x40087468
 
 type
   Termios {.importc: "struct termios", header: "<termios.h>", bycopy.} = object
@@ -22,8 +25,43 @@ type
     c_ispeed: culong
     c_ospeed: culong
 
+  Winsize {.importc: "struct winsize", header: "<sys/ioctl.h>".} = object
+    ws_row: cushort
+    ws_col: cushort
+    ws_xpixel: cushort
+    ws_ypixel: cushort
+
 proc tcgetattr(fd: cint; term: var Termios): cint {.importc, header: "<termios.h>".}
 proc tcsetattr(fd: cint; opt: cint; term: var Termios): cint {.importc, header: "<termios.h>".}
+proc ioctl(fd: cint; req: culong; arg: pointer): cint {.importc, header: "<sys/ioctl.h>".}
+
+proc terminalWidth*(): int =
+  var w: Winsize
+  if ioctl(0, TIOCGWINSZ, addr(w)) == 0 and w.ws_col > 0.cushort:
+    result = int(w.ws_col)
+  else:
+    result = 80
+
+proc visibleLength*(s: string): int =
+  var i = 0
+  while i < s.len:
+    if s[i] == '\x1b':
+      inc i
+      if i < s.len and s[i] == '[':
+        inc i
+        while i < s.len and s[i] notin {'A'..'Z', 'a'..'z'}:
+          inc i
+        if i < s.len: inc i
+      elif i < s.len:
+        inc i
+    else:
+      inc result
+      inc i
+      if i > 0 and s[i-1].ord >= 0xC2:
+        while i < s.len and s[i].ord >= 0x80 and s[i].ord <= 0xBF:
+          inc i
+
+var prevBufLen*: int = 0
 
 type
   ConsoleMode* = object
@@ -48,6 +86,7 @@ proc enableRawMode*(): ConsoleMode =
   discard tcgetattr(0, raw)
   result.orig = raw
   raw.c_iflag = raw.c_iflag and not (ICRNL or IXON)
+  raw.c_oflag = raw.c_oflag and not OPOST
   raw.c_lflag = raw.c_lflag and not (ECHO or ICANON or ISIG or IEXTEN)
   raw.c_cc[VMIN] = 1
   raw.c_cc[VTIME] = 0
@@ -69,13 +108,13 @@ proc readKey*(): int =
     discard tcgetattr(0, restore)
     restore.c_cc[VMIN] = 0
     restore.c_cc[VTIME] = 1
-    discard tcsetattr(0, TCSAFLUSH, restore)
+    discard tcsetattr(0, TCSADRAIN, restore)
     var seq: array[2, char]
     let n1 = posix.read(0, addr seq[0], 1)
     restore.c_cc[VMIN] = 1
     restore.c_cc[VTIME] = 0
-    discard tcsetattr(0, TCSAFLUSH, restore)
-    if n1 <= 0 or seq[0] != '[':
+    discard tcsetattr(0, TCSADRAIN, restore)
+    if n1 <= 0 or (seq[0] != '[' and seq[0] != 'O'):
       return 27
     if posix.read(0, addr seq[1], 1) <= 0:
       return 27
@@ -88,11 +127,13 @@ proc readKey*(): int =
   return int(c)
 
 proc redraw*(prompt: string, buf: string) =
-  stdout.write("\r\x1b[K" & prompt & buf)
+  stdout.write("\x1b[G\x1b[K")
+  stdout.write(prompt & buf)
+  stdout.write("\x1b[J")
   stdout.flushFile()
+  prevBufLen = visibleLength(buf)
 
 proc readLine*(prompt: string, buf: var string): ReadResult =
-  redraw(prompt, buf)
   while true:
     let key = readKey()
     case key

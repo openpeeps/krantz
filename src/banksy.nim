@@ -15,6 +15,7 @@ proc runShell() =
   openHistoryStore(state)
   var historyList = loadAllHistory(state)
   var histIdx = -1
+  var histIndices: seq[int]
   var savedNewInput = ""
 
   let interactive = isTerminal(0)
@@ -34,6 +35,9 @@ proc runShell() =
     var line = ""
 
     block readInput:
+      if interactive:
+        prevBufLen = 0
+        redraw(promptStr, buf)
       while true:
         if interactive:
           let result = readLine(promptStr, buf)
@@ -45,6 +49,8 @@ proc runShell() =
           of rrCancel:
             buf.setLen(0)
             histIdx = -1
+            prevBufLen = 0
+            redraw(promptStr, buf)
             continue
           of rrEof:
             state.shouldExit = true
@@ -52,23 +58,28 @@ proc runShell() =
           of rrNav:
             if histIdx == -1:
               savedNewInput = buf
-            if result.navUp and historyList.len > 0:
-              if histIdx == -1:
-                histIdx = historyList.len - 1
-              elif histIdx > 0:
-                dec histIdx
-              buf = historyList[histIdx]
-              redraw(promptStr, buf)
-            elif not result.navUp:
-              if histIdx >= 0:
+              histIndices = @[]
+              for i in countdown(historyList.high, 0):
+                if historyList[i].startsWith(buf):
+                  histIndices.add(i)
+              if histIndices.len > 0:
+                histIdx = 0
+                buf = historyList[histIndices[0]]
+                redraw(promptStr, buf)
+            elif result.navUp:
+              if histIdx < histIndices.high:
                 inc histIdx
-                if histIdx < historyList.len:
-                  buf = historyList[histIdx]
-                  redraw(promptStr, buf)
-                else:
-                  histIdx = -1
-                  buf = savedNewInput
-                  redraw(promptStr, buf)
+                buf = historyList[histIndices[histIdx]]
+                redraw(promptStr, buf)
+            else:
+              if histIdx > 0:
+                dec histIdx
+                buf = historyList[histIndices[histIdx]]
+                redraw(promptStr, buf)
+              else:
+                histIdx = -1
+                buf = savedNewInput
+                redraw(promptStr, buf)
             continue
         else:
           stdout.write(promptStr)
@@ -102,8 +113,9 @@ proc runShell() =
     else:
       state.lastExitCode = executeParsedLine(parsed, state)
       if trimmed.split()[0] != "history" and trimmed.split()[0] != "exit":
-        addHistory(state, trimmed)
-        historyList.add(trimmed)
+        if historyList.len == 0 or historyList[^1] != trimmed:
+          addHistory(state, trimmed)
+          historyList.add(trimmed)
 
   if interactive:
     disableRawMode(termMode)

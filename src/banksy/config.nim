@@ -32,13 +32,14 @@ proc saveConfig*(cfg: BanksyConfig) =
   lines.add("  user: " & $cfg.prompt.user)
   lines.add("  host: " & $cfg.prompt.host)
   lines.add("  git: " & $cfg.prompt.git)
+  lines.add("  cwdShort: " & $cfg.prompt.cwdShort)
   writeFile(configFile(), lines.join("\n") & "\n")
 
 proc initConfig*() =
   let cfg = BanksyConfig(
     policy: PolicyConfig(deny: @["rm", "sudo", "dd"]),
     history: HistoryConfig(maxSize: 1000),
-    prompt: PromptConfig(user: false, host: false, git: true)
+    prompt: PromptConfig(user: false, host: false, git: true, cwdShort: false)
   )
   saveConfig(cfg)
   echo "Created ", configFile()

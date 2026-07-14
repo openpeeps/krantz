@@ -22,6 +22,7 @@ type
     user*: bool
     host*: bool
     git*: bool
+    cwdShort*: bool
 
   BanksyConfig* = object
     policy*: PolicyConfig
