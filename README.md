@@ -63,6 +63,30 @@ prompt:
   cwdShort: false  
 ```
 
+### 🗺 Roadmap
+
+Ideas and planned features to evolve krantz into a full-featured ZSH/bash alternative:
+
+- **Job control** ~ `fg`, `bg`, `jobs`, `Ctrl-Z` suspend/resume
+- **Completion system** ~ command-specific completions (git branches, npm packages, SSH hosts, Makefile targets), programmable completion akin to `zsh-completions`
+- **Syntax highlighting** ~ real-time highlighting of the input line
+- **Autosuggestions** ~ grayed-out history-based suggestions as you type (fish/zsh-autosuggestions style)
+- **Vim mode** ~ vi keybindings with visual/insert/normal modes
+- **Directory stack** ~ `pushd`/`popd`/`dirs` for fast directory hopping
+- **Directory jumper** ~ fuzzy directory navigation via `z`/`zoxide`-style frecency
+- **Plugin system** ~ load external modules without recompiling the shell
+- **Prompt themes** ~ user-switchable prompt presets with colors, segments, and status indicators
+- **Alias system** ~ global and suffix aliases, alias expansion hints
+- **Keybinding config** ~ user-definable keybindings via YAML
+- **History substring search** ~ type part of a command, press up-arrow to match (like `history-substring-search`)
+- **Fuzzy matching** ~ integrate `fzf` for `Ctrl-T` file search, `Ctrl-R` history reverse search
+- **Built-in help** ~ `help` builtin with support for builtins, config, and keybindings
+- **Session persistence** ~ save/restore REPL state (cwd, variables, history position)
+- **LLM integration** ~ inline copilot suggestions, natural-language-to-command translation
+- **Config hot-reload** ~ apply config changes without restarting the shell
+- **Mouse support** ~ click-to-position cursor in the REPL input line
+- **Shell scripting** ~ execute `.krantzrc` and script files with krantz builtins
+
 ### ❤ Contributions & Support
 - 🐛 Found a bug? [Create a new Issue](https://github.com/openpeeps/krantz/issues)
 - 👋 Wanna help? [Fork it!](https://github.com/openpeeps/krantz/fork)
