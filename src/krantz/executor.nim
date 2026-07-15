@@ -184,8 +184,8 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
         result = 0; state.lastExitCode = 0
         continue
 
+      let cmdName = firstCmd.args[0]
       if firstCmd.args.len > 0:
-        let cmdName = firstCmd.args[0]
         if cmdName == "export":
           for i in 1..<firstCmd.args.len:
             let varName = firstCmd.args[i]
@@ -208,18 +208,13 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
           for e in getHistory(state):
             echo e[0], "  ", e[1]
           result = 0; state.lastExitCode = 0; continue
-        if cmdName.len >= 2 and cmdName != "." and cmdName.allCharsInSet({'.', '/'}):
-          state.prevDir = getCurrentDir()
+        if cmdName.find('/') >= 0 or cmdName.endsWith('/'):
           try:
+            state.prevDir = getCurrentDir()
             setCurrentDir(cmdName)
+            result = 0; state.lastExitCode = 0; continue
           except OSError:
-            stderr.writeLine("krantz: cd: " & cmdName & ": No such file or directory")
-            result = 1
-            state.lastExitCode = 1
-            continue
-          result = 0
-          state.lastExitCode = 0
-          continue
+            discard
         if cmdName == "cd":
           if firstCmd.args.len == 1:
             let home = getHomeDir()
@@ -261,5 +256,12 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
           state.lastExitCode = result
           continue
 
+      if cmdName.find('/') < 0 and not cmdName.endsWith('/') and firstCmd.args.len == 1:
+        try:
+          state.prevDir = getCurrentDir()
+          setCurrentDir(cmdName)
+          result = 0; state.lastExitCode = 0; continue
+        except OSError:
+          discard
     result = executePipeline(pipe)
     state.lastExitCode = result
