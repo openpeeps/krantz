@@ -97,7 +97,7 @@ proc runShell() =
           gNoise.historyAdd(trimmed)
 
 proc printUsage() =
-  echo "Usage: banksy [command]"
+  echo "Usage: krantz [command]"
   echo ""
   echo "Commands:"
   echo "  config               Show current configuration"
@@ -188,19 +188,19 @@ proc dispatchCli(args: seq[string]) =
       elif args[2] == "remove" and args.len >= 4:
         configDenyRemove(args[3])
       else:
-        stderr.writeLine "usage: banksy config deny list|add <cmd>|remove <cmd>"
+        stderr.writeLine "usage: krantz config deny list|add <cmd>|remove <cmd>"
         quit(1)
     else:
-      stderr.writeLine "usage: banksy config [init|show|deny]"
+      stderr.writeLine "usage: krantz config [init|show|deny]"
       quit(1)
   of "complete":
     if args.len >= 2:
       doComplete(args[1])
     else:
-      stderr.writeLine "usage: banksy complete <word>"
+      stderr.writeLine "usage: krantz complete <word>"
       quit(1)
   else:
-    stderr.writeLine "banksy: unknown command: ", args[0]
+    stderr.writeLine "krantz: unknown command: ", args[0]
     printUsage()
     quit(1)
 

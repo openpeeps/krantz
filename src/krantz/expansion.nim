@@ -38,7 +38,7 @@ proc expandVarExpr(expr: string; vars: TableRef[string, string]): string =
   of '+': return if isSet: rest else: ""
   of '?':
     if not isSet:
-      stderr.writeLine("banksy: " & varName & ": " & rest)
+      stderr.writeLine("krantz: " & varName & ": " & rest)
     return value
   else: return value
 

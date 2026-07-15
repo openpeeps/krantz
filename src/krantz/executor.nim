@@ -47,19 +47,19 @@ proc executePipeline*(pipe: Pipeline): int =
         of rkInput:
           let fd = posix.open(redir.target.cstring, O_RDONLY)
           if fd < 0:
-            stderr.writeLine("banksy: " & redir.target & ": No such file or directory")
+            stderr.writeLine("krantz: " & redir.target & ": No such file or directory")
             quit(1)
           discard dup2(fd, 0); discard close(fd)
         of rkOutput:
           let fd = posix.open(redir.target.cstring, O_WRONLY or O_CREAT or O_TRUNC, 0o644)
           if fd < 0:
-            stderr.writeLine("banksy: " & redir.target & ": Cannot open")
+            stderr.writeLine("krantz: " & redir.target & ": Cannot open")
             quit(1)
           discard dup2(fd, cint(redir.fd)); discard close(fd)
         of rkOutputAppend:
           let fd = posix.open(redir.target.cstring, O_WRONLY or O_CREAT or O_APPEND, 0o644)
           if fd < 0:
-            stderr.writeLine("banksy: " & redir.target & ": Cannot open")
+            stderr.writeLine("krantz: " & redir.target & ": Cannot open")
             quit(1)
           discard dup2(fd, cint(redir.fd)); discard close(fd)
         of rkFdDup:
@@ -86,13 +86,13 @@ proc executePipeline*(pipe: Pipeline): int =
 
       let e = errno
       if e == ENOENT:
-        stderr.writeLine("banksy: command not found: " & cmd.args[0])
+        stderr.writeLine("krantz: command not found: " & cmd.args[0])
         quit(127)
       elif e == EACCES:
-        stderr.writeLine("banksy: " & cmd.args[0] & ": Permission denied")
+        stderr.writeLine("krantz: " & cmd.args[0] & ": Permission denied")
         quit(126)
       else:
-        stderr.writeLine("banksy: " & cmd.args[0] & ": error")
+        stderr.writeLine("krantz: " & cmd.args[0] & ": error")
         quit(126)
 
     else:
@@ -168,7 +168,7 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
           try:
             setCurrentDir(cmdName)
           except OSError:
-            stderr.writeLine("banksy: cd: " & cmdName & ": No such file or directory")
+            stderr.writeLine("krantz: cd: " & cmdName & ": No such file or directory")
             result = 1
             state.lastExitCode = 1
             continue
@@ -189,7 +189,7 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
             try:
               setCurrentDir(firstCmd.args[1])
             except OSError:
-              stderr.writeLine("banksy: cd: " & firstCmd.args[1] & ": No such file or directory")
+              stderr.writeLine("krantz: cd: " & firstCmd.args[1] & ": No such file or directory")
               result = 1
               state.lastExitCode = 1
               continue
@@ -199,7 +199,7 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
 
         if cmdName == "trash":
           if firstCmd.args.len == 1:
-            stderr.writeLine("banksy: trash: missing operand")
+            stderr.writeLine("krantz: trash: missing operand")
             result = 1
             state.lastExitCode = 1
             continue
@@ -210,7 +210,7 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
             try:
               moveFile(src, trashDir / src.splitPath().tail)
             except OSError:
-              stderr.writeLine("banksy: trash: cannot move '" & src & "': No such file or directory")
+              stderr.writeLine("krantz: trash: cannot move '" & src & "': No such file or directory")
               hadError = true
           result = if hadError: 1 else: 0
           state.lastExitCode = result

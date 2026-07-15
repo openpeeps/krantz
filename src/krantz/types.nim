@@ -31,7 +31,7 @@ type
     git*: bool
     cwdShort*: bool
 
-  BanksyConfig* = object
+  KrantzConfig* = object
     policy*: PolicyConfig
     history*: HistoryConfig
     prompt*: PromptConfig
@@ -102,7 +102,7 @@ type
     separators*: seq[PipelineSep]
 
   ShellState* = ref object
-    config*: BanksyConfig
+    config*: KrantzConfig
     policy*: PolicyEngine
     store*: Store
     lastExitCode*: int

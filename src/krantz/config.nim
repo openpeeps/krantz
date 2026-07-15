@@ -10,19 +10,19 @@ import openparser/yaml
 import ./types
 
 proc configDir*(): string =
-  getHomeDir() / ".banksy"
+  getHomeDir() / ".krantz"
 
 proc configFile*(): string =
   configDir() / "config.yaml"
 
-proc loadConfig*(): BanksyConfig =
+proc loadConfig*(): KrantzConfig =
   if not fileExists(configFile()):
-    return BanksyConfig()
+    return KrantzConfig()
 
   let yamlContent = readFile(configFile())
-  result = parseYAML(yamlContent, BanksyConfig)
+  result = parseYAML(yamlContent, KrantzConfig)
 
-proc saveConfig*(cfg: BanksyConfig) =
+proc saveConfig*(cfg: KrantzConfig) =
   createDir(configDir())
   var lines = @["policy:"]
   if cfg.policy.deny.len > 0:
@@ -42,7 +42,7 @@ proc saveConfig*(cfg: BanksyConfig) =
   writeFile(configFile(), lines.join("\n") & "\n")
 
 proc initConfig*() =
-  let cfg = BanksyConfig(
+  let cfg = KrantzConfig(
     policy: PolicyConfig(deny: @["rm", "sudo", "dd"]),
     history: HistoryConfig(maxSize: 1000),
     prompt: PromptConfig(user: false, host: false, git: true, cwdShort: false)

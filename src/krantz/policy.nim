@@ -8,7 +8,7 @@ import std/[strutils, strformat]
 
 import ./types
 
-proc newPolicyEngine*(config: BanksyConfig): PolicyEngine =
+proc newPolicyEngine*(config: KrantzConfig): PolicyEngine =
   result = PolicyEngine(denyCommands: @[])
   if config.policy.deny.len > 0:
     for cmd in config.policy.deny:

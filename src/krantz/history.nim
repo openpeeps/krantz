@@ -10,8 +10,8 @@ import boogie/stores/rdbms
 import ./types
 
 proc openHistoryStore*(state: var ShellState) =
-  let histPath = getHomeDir() / ".banksy" / "history"
-  createDir(getHomeDir() / ".banksy")
+  let histPath = getHomeDir() / ".krantz" / "history"
+  createDir(getHomeDir() / ".krantz")
   let store = newStore(histPath, smDisk, enableWal = true,
                        checkpointEveryOps = 500'u32,
                        walFlushEveryOps = 1'u32)
