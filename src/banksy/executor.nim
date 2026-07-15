@@ -1,4 +1,4 @@
-import std/[os, strutils]
+import std/[os, strutils, tables]
 import posix
 
 import ./types
@@ -67,6 +67,9 @@ proc executePipeline*(pipe: Pipeline): int =
               targetFd = parseInt(redir.target)
             discard dup2(cint(targetFd), cint(redir.fd))
 
+      for v in cmd.envVars:
+        putEnv(v[0], v[1])
+
       var argvSeq = @[cmd.args[0]]
       if cmd.args.len > 1:
         for a in cmd.args[1..^1]:
@@ -125,8 +128,25 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
 
     if pipe.commands.len > 0:
       let firstCmd = pipe.commands[0]
+
+      if firstCmd.args.len == 0:
+        result = 0; state.lastExitCode = 0
+        continue
+
       if firstCmd.args.len > 0:
         let cmdName = firstCmd.args[0]
+        if cmdName == "export":
+          for i in 1..<firstCmd.args.len:
+            let varName = firstCmd.args[i]
+            if state.vars.hasKey(varName):
+              putEnv(varName, state.vars[varName])
+          result = 0; state.lastExitCode = 0; continue
+        if cmdName == "unset":
+          for i in 1..<firstCmd.args.len:
+            let varName = firstCmd.args[i]
+            state.vars.del(varName)
+            delEnv(varName)
+          result = 0; state.lastExitCode = 0; continue
         if cmdName == "exit":
           state.shouldExit = true
           if firstCmd.args.len > 1:

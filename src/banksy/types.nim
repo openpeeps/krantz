@@ -1,3 +1,4 @@
+import std/[tables]
 import boogie/stores/rdbms
 
 type
@@ -40,6 +41,11 @@ type
   PolicyEngine* = ref object
     denyCommands*: seq[string]
 
+  QuoteKind* = enum
+    qkNone
+    qkSingle
+    qkDouble
+
   TokenKind* = enum
     tokWord
     tokPipe
@@ -57,6 +63,7 @@ type
   Token* = object
     kind*: TokenKind
     value*: string
+    quoteKind*: QuoteKind
 
   RedirectionKind* = enum
     rkInput
@@ -71,7 +78,9 @@ type
 
   SimpleCommand* = ref object
     args*: seq[string]
+    argQuotes*: seq[QuoteKind]
     redirects*: seq[Redirection]
+    envVars*: seq[(string, string)]
 
   Pipeline* = ref object
     commands*: seq[SimpleCommand]
@@ -95,3 +104,4 @@ type
     prevDir*: string
     lastCwd*: string
     cachedBranch*: string
+    vars*: TableRef[string, string]

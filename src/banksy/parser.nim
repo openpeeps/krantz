@@ -19,7 +19,7 @@ proc lexLine*(input: string): seq[Token] =
       while pos < input.len and input[pos] != '\'':
         val.add(input[pos]); inc pos
       if pos < input.len: inc pos  # closing '
-      result.add(Token(kind: tokWord, value: val))
+      result.add(Token(kind: tokWord, value: val, quoteKind: qkSingle))
       continue
 
     if ch == '"':
@@ -39,7 +39,7 @@ proc lexLine*(input: string): seq[Token] =
           val.add(input[pos])
         inc pos
       if pos < input.len: inc pos  # closing "
-      result.add(Token(kind: tokWord, value: val))
+      result.add(Token(kind: tokWord, value: val, quoteKind: qkDouble))
       continue
 
     if ch == '\\' and pos + 1 < input.len:
@@ -87,10 +87,30 @@ proc lexLine*(input: string): seq[Token] =
       inc pos
     else:
       var val = ""
+      var parenDepth = 0
+      var inBacktick = false
       while pos < input.len:
         ch = input[pos]
-        if ch in {' ', '\t', '|', ';', '&', '>', '<', '#', '\'', '"'}:
+        if (ch in {' ', '\t'} and parenDepth == 0 and not inBacktick) or
+           ch in {'|', ';', '&', '>', '<', '#', '\'', '"'}:
           break
+        if ch == '`' and not inBacktick:
+          inBacktick = true
+        elif ch == '`' and inBacktick:
+          val.add(ch)
+          inc pos
+          inBacktick = false
+          continue
+        elif ch == '(' and pos > 0 and input[pos-1] == '$':
+          parenDepth = 1
+        elif ch == '(' and parenDepth > 0:
+          parenDepth += 1
+        elif ch == ')' and parenDepth > 0:
+          parenDepth -= 1
+          if parenDepth == 0:
+            val.add(ch)
+            inc pos
+            continue
         if ch == '\\' and pos + 1 < input.len:
           inc pos
           val.add(input[pos])
@@ -99,7 +119,7 @@ proc lexLine*(input: string): seq[Token] =
         val.add(ch)
         inc pos
       if val.len > 0:
-        result.add(Token(kind: tokWord, value: val))
+        result.add(Token(kind: tokWord, value: val, quoteKind: qkNone))
 
   result.add(Token(kind: tokEOF))
 
@@ -111,7 +131,7 @@ proc parseRedirectionTarget(tokens: seq[Token], pos: var int): Redirection =
     result.target = ""
 
 proc parseSimpleCommand(tokens: seq[Token], pos: var int): SimpleCommand =
-  result = SimpleCommand(args: @[], redirects: @[])
+  result = SimpleCommand(args: @[], argQuotes: @[], redirects: @[])
 
   while pos < tokens.len:
     let tok = tokens[pos]
@@ -133,6 +153,7 @@ proc parseSimpleCommand(tokens: seq[Token], pos: var int): SimpleCommand =
           result.redirects.add(redir)
         else:
           result.args.add(tok.value)
+          result.argQuotes.add(tok.quoteKind)
           inc pos
       elif pos + 1 < tokens.len and tokens[pos+1].kind == tokFdDup:
         if tok.value.len > 0 and tok.value.allCharsInSet(Digits):
@@ -144,9 +165,11 @@ proc parseSimpleCommand(tokens: seq[Token], pos: var int): SimpleCommand =
           result.redirects.add(redir)
         else:
           result.args.add(tok.value)
+          result.argQuotes.add(tok.quoteKind)
           inc pos
       else:
         result.args.add(tok.value)
+        result.argQuotes.add(tok.quoteKind)
         inc pos
 
     of tokRedirOut:

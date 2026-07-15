@@ -1,6 +1,6 @@
-import std/[algorithm, strutils, os]
+import std/[algorithm, strutils, os, tables]
 import ./banksy/private/noise
-import banksy/[config, env, history, parser, executor, policy, prompt, term, types]
+import banksy/[config, env, history, parser, executor, policy, prompt, term, types, expansion]
 
 proc runShell() =
   loadShellEnv()
@@ -11,7 +11,8 @@ proc runShell() =
     policy: engine,
     lastExitCode: 0,
     shouldExit: false,
-    prevDir: ""
+    prevDir: "",
+    vars: newTable[string, string]()
   )
   openHistoryStore(state)
   var historyList = loadAllHistory(state)
@@ -65,10 +66,11 @@ proc runShell() =
       continue
 
     let parsed = parseLine(trimmed)
+    let expanded = expandLine(parsed, state.vars)
 
     var policyBlocked = false
     block checkPolicy:
-      for pipe in parsed.pipelines:
+      for pipe in expanded.pipelines:
         for cmd in pipe.commands:
           if cmd.args.len == 0: continue
           let policyResult = engine.check(cmd.args[0])
@@ -80,7 +82,7 @@ proc runShell() =
     if policyBlocked:
       state.lastExitCode = 1
     else:
-      state.lastExitCode = executeParsedLine(parsed, state)
+      state.lastExitCode = executeParsedLine(expanded, state)
       let cmdName = trimmed.split()[0]
       if cmdName != "history" and cmdName != "exit":
         if historyList.len == 0 or historyList[^1] != trimmed:
