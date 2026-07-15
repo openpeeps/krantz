@@ -82,7 +82,7 @@ Ideas and planned features to evolve krantz into a full-featured ZSH/bash altern
 - **Fuzzy matching** ~ integrate `fzf` for `Ctrl-T` file search, `Ctrl-R` history reverse search
 - **Built-in help** ~ `help` builtin with support for builtins, config, and keybindings
 - **Session persistence** ~ save/restore REPL state (cwd, variables, history position)
-- **LLM integration** ~ inline copilot suggestions, natural-language-to-command translation
+- **LLM integration** ~ inline AI suggestions, natural-language-to-command translation
 - **Config hot-reload** ~ apply config changes without restarting the shell
 - **Mouse support** ~ click-to-position cursor in the REPL input line
 - **Shell scripting** ~ execute `.krantzrc` and script files with krantz builtins
