@@ -15,14 +15,24 @@ proc configDir*(): string =
 proc configFile*(): string =
   configDir() / "config.yaml"
 
+proc saveConfig*(cfg: KrantzConfig)
+
 proc loadConfig*(): KrantzConfig =
   if not fileExists(configFile()):
-    return KrantzConfig()
+    result = KrantzConfig(
+      policy: PolicyConfig(deny: @["rm"]),
+      history: HistoryConfig(maxSize: 1000),
+      prompt: PromptConfig(user: false, host: false, git: true, cwdShort: false)
+    )
+    saveConfig(result)
+    return
 
   let yamlContent = readFile(configFile())
   result = parseYAML(yamlContent, KrantzConfig)
 
 proc saveConfig*(cfg: KrantzConfig) =
+  ## Dump KrantzConfig to YAML
+  # TODO use pkg/openparser/yaml (dump feature ~ need extra testing)
   createDir(configDir())
   var lines = @["policy:"]
   if cfg.policy.deny.len > 0:
@@ -43,7 +53,7 @@ proc saveConfig*(cfg: KrantzConfig) =
 
 proc initConfig*() =
   let cfg = KrantzConfig(
-    policy: PolicyConfig(deny: @["rm", "sudo", "dd"]),
+    policy: PolicyConfig(deny: @["rm"]),
     history: HistoryConfig(maxSize: 1000),
     prompt: PromptConfig(user: false, host: false, git: true, cwdShort: false)
   )

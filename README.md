@@ -44,13 +44,34 @@ OSC 7 cwd emission for same-directory new tabs. Graceful SIGHUP/SIGTERM shutdown
 ## Examples
 ...
 
+### Krantz Config
+
+Configuration lives at `~/.krantz/config.yaml`. First-time initialization automatically creates the config file under `~/.krantz/` with a default policy that denies dangerous commands:
+
+```yaml
+policy:
+  deny:
+    - rm
+    - sudo
+    - dd
+
+history:
+  maxSize: 1000
+
+prompt:
+  user: false
+  host: false
+  git: true
+  cwdShort: false
+```
+
 ### ❤ Contributions & Support
 - 🐛 Found a bug? [Create a new Issue](https://github.com/openpeeps/krantz/issues)
 - 👋 Wanna help? [Fork it!](https://github.com/openpeeps/krantz/fork)
 
 |  |  |
 |---|---|
-| <a href="https://opencode.ai/go?ref=BHMEEK48QX"><img src="https://github.com/openpeeps/krantz/blob/main/.github/opencode.png" alt="OpenCode"></a> | Switch to **Open-Source LLMs** via OpenCode GO, choosing from a variety of powerful models such as DeepSeek, Qwen, Kimi, GLM-5, MiniMax, MiMo. 🍕 [Use our referral link to get started!](https://opencode.ai/go?ref=BHMEEK48QX)|
+| <a href="https://opencode.ai/go?ref=BHMEEK48QX"><img src="https://github.com/openpeeps/pistachio/blob/main/.github/opencode.png" alt="OpenCode"></a> | Switch to **Open-Source LLMs** via OpenCode GO, choosing from a variety of powerful models such as DeepSeek, Qwen, Kimi, GLM-5, MiniMax, MiMo. 🍕 [Use our referral link to get started!](https://opencode.ai/go?ref=BHMEEK48QX)|
 
 ### 🎩 License
 LGPLv3 license. [Made by Humans from OpenPeeps](https://github.com/openpeeps).<br>
