@@ -13,6 +13,9 @@
   <img src="https://github.com/openpeeps/krantz/workflows/test/badge.svg" alt="Github Actions">  <img src="https://github.com/openpeeps/krantz/workflows/docs/badge.svg" alt="Github Actions">
 </p>
 
+> [!NOTE]
+> Krantz is still a work in progress, but already pretty usable as a daily driver
+
 ## 😍 Key Features
 
 - Interactive REPL with line editing and tab completion
