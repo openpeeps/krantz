@@ -1,6 +1,6 @@
 # A fast ZSH alternative written in Nim
 #
-# (c) 2026 George Lemon | LGPL-v3 License
+# (c) 2026 George Lemon | GPL-v3 License
 #          Made by Humans from OpenPeeps
 #          https://github.com/georgelemon/krantz
 
