@@ -4,7 +4,7 @@
 #          Made by Humans from OpenPeeps
 #          https://github.com/georgelemon/krantz
 
-import std/[algorithm, os, strutils, sequtils, posix, tables]
+import std/[algorithm, os, strutils, posix, tables]
 import ./types
 
 proc tildeExpand*(word: string): string =
@@ -13,97 +13,6 @@ proc tildeExpand*(word: string): string =
     result = os.expandTilde(word)
   except OSError:
     result = word
-
-proc expandVarExpr(expr: string; vars: TableRef[string, string]): string =
-  let colon = expr.find(':')
-  let varName = if colon >= 0: expr[0..colon-1] else: expr
-
-  let value = if vars != nil and vars.hasKey(varName): vars[varName] else: getEnv(varName)
-
-  if colon < 0:
-    return value
-
-  let op = expr[colon+1]
-  let rest = if colon + 2 < expr.len: expr[colon+2..^1] else: ""
-  let isSet = value.len > 0
-
-  case op
-  of '-': return if isSet: value else: rest
-  of '=':
-    if not isSet:
-      putEnv(varName, rest)
-      if vars != nil: vars[varName] = rest
-      return rest
-    return value
-  of '+': return if isSet: rest else: ""
-  of '?':
-    if not isSet:
-      stderr.writeLine("krantz: " & varName & ": " & rest)
-    return value
-  else: return value
-
-proc expandEnv*(word: string; vars: TableRef[string, string]): string =
-  var i = 0
-  while i < word.len:
-    if word[i] == '$' and i + 1 < word.len:
-      if word[i+1] == '$':
-        result.add($posix.getpid())
-        i += 2
-      elif word[i+1] == '{':
-        let closingBrace = word.find('}', i)
-        if closingBrace > 0:
-          result.add(expandVarExpr(word[i+2..closingBrace-1], vars))
-          i = closingBrace + 1
-        else:
-          result.add(word[i]); inc i
-      else:
-        var j = i + 1
-        while j < word.len and (word[j].isAlphaNumeric or word[j] == '_'):
-          inc j
-        if j > i + 1:
-          var varValue = ""
-          if vars != nil and vars.hasKey(word[i+1..j-1]):
-            varValue = vars[word[i+1..j-1]]
-          else:
-            varValue = getEnv(word[i+1..j-1], "")
-          result.add(varValue)
-          i = j
-        else:
-          result.add(word[i]); inc i
-    else:
-      result.add(word[i]); inc i
-
-proc findMatchingParen(s: string, start: int): int =
-  var depth = 1
-  var i = start + 2
-  var inSingle = false
-  var inDouble = false
-  while i < s.len:
-    if inSingle:
-      if s[i] == '\'': inSingle = false
-    elif inDouble:
-      if s[i] == '"': inDouble = false
-      elif s[i] == '\\': inc i
-    else:
-      case s[i]
-      of '\'': inSingle = true
-      of '"': inDouble = true
-      of '(': inc depth
-      of ')':
-        dec depth
-        if depth == 0: return i
-      of '\\': inc i
-      else: discard
-    inc i
-  return -1
-
-proc findMatchingBacktick(s: string, start: int): int =
-  var i = start + 1
-  while i < s.len:
-    if s[i] == '\\': inc i
-    elif s[i] == '`': return i
-    inc i
-  return -1
 
 proc executeAndCapture(cmd: string): string =
   var pipefds: array[2, cint]
@@ -135,24 +44,27 @@ proc executeAndCapture(cmd: string): string =
   while result.len > 0 and result[^1] == '\n':
     result.setLen(result.len - 1)
 
-proc expandCommandSubst*(word: string): string =
-  var i = 0
-  while i < word.len:
-    if word[i] == '$' and i + 1 < word.len and word[i+1] == '(':
-      let closePos = findMatchingParen(word, i)
-      if closePos > 0:
-        let captured = executeAndCapture(word[i+2..closePos-1])
-        result.add(captured)
-        i = closePos + 1
-        continue
-    elif word[i] == '`':
-      let closePos = findMatchingBacktick(word, i)
-      if closePos > 0:
-        let captured = executeAndCapture(word[i+1..closePos-1])
-        result.add(captured)
-        i = closePos + 1
-        continue
-    result.add(word[i]); inc i
+proc expandWordViaShell*(word: string; vars: TableRef[string, string]): string =
+  var savedEnv: seq[(string, string)] = @[]
+  if vars != nil:
+    for k, v in vars.pairs:
+      savedEnv.add((k, os.getEnv(k)))
+      os.putEnv(k, v)
+
+  var quoted = "\""
+  for c in word:
+    case c
+    of '\\', '"':
+      quoted.add('\\'); quoted.add(c)
+    else:
+      quoted.add(c)
+  quoted.add("\"")
+  result = executeAndCapture("printf \"%s\" " & quoted)
+
+  if vars != nil:
+    for item in savedEnv:
+      if item[1].len > 0: os.putEnv(item[0], item[1])
+      else: os.delEnv(item[0])
 
 proc globMatch(name: string, pattern: string): bool =
   var ni = 0; var pi = 0
@@ -222,11 +134,8 @@ proc expandWord*(word: string; quoteKind: QuoteKind; vars: TableRef[string, stri
   if quoteKind == qkNone and w.len > 0 and w[0] == '~':
     w = tildeExpand(w)
 
-  if quoteKind != qkSingle and (w.contains('$') or w.contains('`') or w.find("$(") >= 0):
-    w = expandCommandSubst(w)
-
-  if quoteKind != qkSingle:
-    w = expandEnv(w, vars)
+  if quoteKind != qkSingle and (w.contains('$') or w.contains('`')):
+    w = expandWordViaShell(w, vars)
 
   if quoteKind == qkNone and (w.contains('*') or w.contains('?') or w.contains('[')):
     result = expandGlob(w)
@@ -237,10 +146,8 @@ proc expandRedirTarget(target: string; vars: TableRef[string, string]): string =
   var t = target
   if t.len > 0 and t[0] == '~':
     t = tildeExpand(t)
-  if t.contains('$') or t.contains('`') or t.find("$(") >= 0:
-    t = expandCommandSubst(t)
-  if t.contains('$'):
-    t = expandEnv(t, vars)
+  if t.contains('$') or t.contains('`'):
+    t = expandWordViaShell(t, vars)
   result = t
 
 proc expandLine*(parsed: ParsedLine; vars: TableRef[string, string]): ParsedLine =
@@ -258,9 +165,8 @@ proc expandLine*(parsed: ParsedLine; vars: TableRef[string, string]): ParsedLine
           let varName = arg[0..eq-1]
           let varValueRaw = arg[eq+1..^1]
           var varValue = varValueRaw
-          if varValue.contains('~') or varValue.contains('$') or varValue.contains('`') or varValue.find("$(") >= 0:
-            varValue = expandCommandSubst(varValue)
-            varValue = expandEnv(varValue, vars)
+          if varValue.contains('~') or varValue.contains('$') or varValue.contains('`'):
+            varValue = expandWordViaShell(varValue, vars)
             if varValue.len > 0 and varValue[0] == '~':
               varValue = tildeExpand(varValue)
           if cmd.args.len == 1 and cmd.redirects.len == 0:

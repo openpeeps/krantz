@@ -19,7 +19,7 @@
 ## 😍 Key Features
 
 - Interactive REPL with line editing and tab completion
-- POSIX-style expansion: tilde, env vars, command substitution, glob
+- POSIX-style expansion: tilde, env vars, command substitution, glob (via delegated shell)
 - Variable assignment (`FOO=bar`) with `export` / `unset`
 - Pipelines, redirections, background processes, conditional operators
 - Policy engine to deny dangerous commands
@@ -38,11 +38,13 @@ Emacs keybindings, history search (Ctrl-R), kill/yank ring, incremental search, 
 
 ## Expansion
 
-Tilde (`~`, `~user`), environment variables (`$VAR`, `${VAR}`, `${VAR:-=+?word}`), command substitution (`$(cmd)`, `` `cmd` ``), glob (`*`, `?`, `[...]`). Applied in POSIX order.
+Tilde (`~`, `~user`) expansion is handled natively. All `$`-based expansion (environment variables, `${:-=+?}` operators, command substitution, arithmetic) and backtick substitution is delegated to `/bin/sh` via fork/exec, ensuring full shell compatibility. Globbing (`*`, `?`, `[...]`) is handled natively. Expansion order follows POSIX semantics.
 
 ## Terminal Integration
 
 OSC 7 cwd emission for same-directory new tabs. Graceful SIGHUP/SIGTERM shutdown. SA_RESTART for SIGWINCH. Unknown CSI sequences consumed. Terminal modes reset at startup.
+
+Child processes receive proper process-group membership (`setpgid`) and terminal foreground ownership (`tcsetpgrp`) via blocked `SIGTTOU`/`SIGTTIN`, matching the POSIX job-control model. After a foreground child exits, the terminal is reclaimed and input-affecting modes (mouse tracking, focus events, bracketed paste) are reset without disturbing the child's visible output. Stale stdin is drained before each child runs.
 
 ## Examples
 ...
