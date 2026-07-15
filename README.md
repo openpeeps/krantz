@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/krantz/krantz/main/.github/krantz.png" alt="krantz" width="240px" height="auto"><br>
+  <img src="https://raw.githubusercontent.com/krantz/krantz/main/.github/krantz.svg" alt="krantz" width="240px" height="auto"><br>
   Krantz ~ a fast ZSH alternative written in Nim<br>
   Compiled &bullet; YAML Command Policy &bullet; History
 </p>
