@@ -130,6 +130,7 @@ proc drainStdin*() =
   let fd = getFileHandle(stdin)
 
   var oldTermios, rawTermios: Termios
+  var drained = false
   if fd.tcGetAttr(oldTermios.addr) != -1:
     rawTermios = oldTermios
     rawTermios.c_iflag = rawTermios.c_iflag and not Cflag(BRKINT or ICRNL or INPCK or ISTRIP or IXON)
@@ -137,12 +138,19 @@ proc drainStdin*() =
     rawTermios.c_cc[VMIN] = 1.cuchar
     rawTermios.c_cc[VTIME] = 0.cuchar
     discard fd.tcSetAttr(TCSADRAIN, rawTermios.addr)
+    drained = true
 
   while true:
     s.FD_ZERO; fd.FD_SET(s)
     if posix.select(1, s.addr, nil, nil, tv.addr) <= 0:
       break
     discard posix.read(fd, buf[0].addr, 256)
+
+  if drained:
+    discard fd.tcSetAttr(TCSADRAIN, oldTermios.addr)
+
+proc prepareChildTerminal*() =
+  drainStdin()
 
 proc initTerminal*() =
   stdout.write("\n")

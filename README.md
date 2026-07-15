@@ -52,17 +52,15 @@ Configuration lives at `~/.krantz/config.yaml`. First-time initialization automa
 policy:
   deny:
     - rm
-    - sudo
-    - dd
 
 history:
   maxSize: 1000
 
 prompt:
-  user: false
-  host: false
-  git: true
-  cwdShort: false
+  user: false       # show username in the cmd line
+  host: false       # show hostname in the cmd line
+  git: true         # enable git branch status
+  cwdShort: false  
 ```
 
 ### ❤ Contributions & Support
@@ -74,5 +72,5 @@ prompt:
 | <a href="https://opencode.ai/go?ref=BHMEEK48QX"><img src="https://github.com/openpeeps/pistachio/blob/main/.github/opencode.png" alt="OpenCode"></a> | Switch to **Open-Source LLMs** via OpenCode GO, choosing from a variety of powerful models such as DeepSeek, Qwen, Kimi, GLM-5, MiniMax, MiMo. 🍕 [Use our referral link to get started!](https://opencode.ai/go?ref=BHMEEK48QX)|
 
 ### 🎩 License
-LGPLv3 license. [Made by Humans from OpenPeeps](https://github.com/openpeeps).<br>
+GPLv3 license. [Made by Humans from OpenPeeps](https://github.com/openpeeps).<br>
 Copyright OpenPeeps & Contributors &mdash; All rights reserved.

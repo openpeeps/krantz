@@ -9,6 +9,11 @@ import posix
 
 import ./types
 import ./history
+import ./term
+
+proc setpgid(pid: Pid, pgid: Pid): cint {.importc, header: "<unistd.h>".}
+proc tcsetpgrp(fd: cint, pgid: Pid): cint {.importc, header: "<unistd.h>".}
+proc tcgetpgrp(fd: cint): Pid {.importc, header: "<unistd.h>".}
 
 proc toCstringArray(a: seq[string]): cstringArray =
   result = cast[cstringArray](alloc0(sizeof(cstring) * (a.len + 1)))
@@ -21,6 +26,8 @@ proc executePipeline*(pipe: Pipeline): int =
 
   var pids: seq[Pid]
   var pipes: seq[(cint, cint)]
+  var pipelinePgid: Pid = 0
+  let interactive = posix.isatty(0) != 0
 
   for i in 0..<cmds.len-1:
     var fds: array[2, cint]
@@ -28,11 +35,28 @@ proc executePipeline*(pipe: Pipeline): int =
       return 1
     pipes.add((fds[0], fds[1]))
 
+  var sigmask, oldmask, dummy: Sigset
+  if not pipe.background and interactive:
+    discard sigemptyset(sigmask)
+    discard sigaddset(sigmask, SIGTTIN)
+    discard sigaddset(sigmask, SIGTTOU)
+    discard sigprocmask(SIG_BLOCK, sigmask, oldmask)
+    prepareChildTerminal()
+
   for i, cmd in cmds:
     let pid = fork()
-    if pid < 0: return 1
+    if pid < 0:
+      if not pipe.background and interactive:
+        discard sigprocmask(SIG_SETMASK, oldmask, dummy)
+      return 1
 
     if pid == 0:
+      if not pipe.background and interactive:
+        if i == 0:
+          discard setpgid(0, 0)
+          discard tcsetpgrp(0, getpid())
+        discard sigprocmask(SIG_SETMASK, oldmask, dummy)
+
       if i > 0:
         discard dup2(pipes[i-1][0], 0)
       if i < cmds.len - 1:
@@ -96,11 +120,21 @@ proc executePipeline*(pipe: Pipeline): int =
         quit(126)
 
     else:
+      if not pipe.background and interactive:
+        if i == 0:
+          pipelinePgid = pid
+          discard setpgid(pid, pid)
+          discard tcsetpgrp(0, pid)
+        else:
+          discard setpgid(pid, pipelinePgid)
       pids.add(pid)
 
   for p in pipes:
     discard close(p[0])
     discard close(p[1])
+
+  if not pipe.background and interactive:
+    discard sigprocmask(SIG_SETMASK, oldmask, dummy)
 
   if pipe.background:
     echo '[', pids[^1], "] ", pids[^1]
@@ -112,6 +146,17 @@ proc executePipeline*(pipe: Pipeline): int =
     while waitpid(pid, status, 0) < 0 and errno == EINTR:
       discard
     lastStatus = status
+
+  if interactive:
+    var restoreMask: Sigset
+    discard sigemptyset(restoreMask)
+    discard sigaddset(restoreMask, SIGTTIN)
+    discard sigaddset(restoreMask, SIGTTOU)
+    var restoreOld: Sigset
+    discard sigprocmask(SIG_BLOCK, restoreMask, restoreOld)
+    discard tcsetpgrp(0, getpgrp())
+    discard sigprocmask(SIG_SETMASK, restoreOld, restoreMask)
+    resetTerminalModes()
 
   if WIFEXITED(lastStatus):
     return int(WEXITSTATUS(lastStatus))
