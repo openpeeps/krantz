@@ -1,3 +1,9 @@
+# A fast ZSH alternative written in Nim
+#
+# (c) 2026 George Lemon | LGPL-v3 License
+#          Made by Humans from OpenPeeps
+#          https://github.com/georgelemon/krantz
+
 import std/[algorithm, strutils, os, tables]
 import ./krantz/private/noise
 import krantz/[config, env, history, parser, executor, policy, prompt, term, types, expansion]
