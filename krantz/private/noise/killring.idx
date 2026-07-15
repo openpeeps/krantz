@@ -1,0 +1,16 @@
+nimTitle	killring	krantz/private/noise/killring.html	module krantz/private/noise/killring		0
+nim	actionOther	krantz/private/noise/killring.html#actionOther	KillRingAction.actionOther		12
+nim	actionKill	krantz/private/noise/killring.html#actionKill	KillRingAction.actionKill		12
+nim	actionYank	krantz/private/noise/killring.html#actionYank	KillRingAction.actionYank		12
+nim	KillRingAction	krantz/private/noise/killring.html#KillRingAction	enum KillRingAction		12
+nim	KillRing	krantz/private/noise/killring.html#KillRing	object KillRing		17
+nim	init	krantz/private/noise/killring.html#init,typedesc[KillRing]	proc init(x: typedesc[KillRing]): KillRing		28
+nim	setMaxLen	krantz/private/noise/killring.html#setMaxLen,KillRing,int	proc setMaxLen(self: var KillRing; maxLen: int)		33
+nim	kill	krantz/private/noise/killring.html#kill,KillRing,string,bool	proc kill(self: var KillRing; killedText: string; forward: bool)		41
+nim	available	krantz/private/noise/killring.html#available,KillRing	proc available(self: KillRing): bool		58
+nim	yank	krantz/private/noise/killring.html#yank,KillRing	proc yank(self: var KillRing): string		61
+nim	yankPop	krantz/private/noise/killring.html#yankPop,KillRing	proc yankPop(self: var KillRing): string		68
+nim	lastAction	krantz/private/noise/killring.html#lastAction,KillRing	proc lastAction(self: KillRing): KillRingAction		78
+nim	lastAction	krantz/private/noise/killring.html#lastAction,KillRing,KillRingAction	proc lastAction(self: var KillRing; action: KillRingAction)		81
+nim	resetAction	krantz/private/noise/killring.html#resetAction,KillRing	proc resetAction(self: var KillRing)		84
+nimgrp	lastaction	krantz/private/noise/killring.html#lastAction-procs-all	proc		78

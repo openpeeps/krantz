@@ -1,0 +1,7 @@
+nimTitle	expansion	krantz/expansion.html	module krantz/expansion		0
+nim	tildeExpand	krantz/expansion.html#tildeExpand,string	proc tildeExpand(word: string): string		10
+nim	expandEnv	krantz/expansion.html#expandEnv,string,TableRef[string,string]	proc expandEnv(word: string; vars: TableRef[string, string]): string		45
+nim	expandCommandSubst	krantz/expansion.html#expandCommandSubst,string	proc expandCommandSubst(word: string): string		138
+nim	expandGlob	krantz/expansion.html#expandGlob,string	proc expandGlob(word: string): seq[string]		178
+nim	expandWord	krantz/expansion.html#expandWord,string,QuoteKind,TableRef[string,string]	proc expandWord(word: string; quoteKind: QuoteKind; vars: TableRef[string, string]): seq[\n    string]		219
+nim	expandLine	krantz/expansion.html#expandLine,ParsedLine,TableRef[string,string]	proc expandLine(parsed: ParsedLine; vars: TableRef[string, string]): ParsedLine		246

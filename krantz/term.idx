@@ -1,0 +1,14 @@
+nimTitle	term	krantz/term.html	module krantz/term		0
+nim	terminalWidth	krantz/term.html#terminalWidth	proc terminalWidth(): int		21
+nim	visibleLength	krantz/term.html#visibleLength,string	proc visibleLength(s: string): int		28
+nim	isTerminal	krantz/term.html#isTerminal,cint	proc isTerminal(fd: cint): bool		47
+nim	gNoise	krantz/term.html#gNoise	var gNoise		50
+nim	resetTerminalModes	krantz/term.html#resetTerminalModes	proc resetTerminalModes()		120
+nim	drainStdin	krantz/term.html#drainStdin	proc drainStdin()		125
+nim	prepareChildTerminal	krantz/term.html#prepareChildTerminal	proc prepareChildTerminal()		152
+nim	initTerminal	krantz/term.html#initTerminal	proc initTerminal()		155
+nim	readLineInput	krantz/term.html#readLineInput,Styler	proc readLineInput(prompt: Styler): tuple[success: bool, line: string]		164
+nim	historySaveToFile	krantz/term.html#historySaveToFile,string	proc historySaveToFile(path: string)		171
+nim	historyLoadFromFile	krantz/term.html#historyLoadFromFile,string	proc historyLoadFromFile(path: string)		174
+nim	isShuttingDown	krantz/term.html#isShuttingDown	proc isShuttingDown(): bool		177
+nim	emitCurrentDir	krantz/term.html#emitCurrentDir,string	proc emitCurrentDir(dir: string)		180

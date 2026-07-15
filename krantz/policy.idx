@@ -1,0 +1,3 @@
+nimTitle	policy	krantz/policy.html	module krantz/policy		0
+nim	newPolicyEngine	krantz/policy.html#newPolicyEngine,KrantzConfig	proc newPolicyEngine(config: KrantzConfig): PolicyEngine		11
+nim	check	krantz/policy.html#check,PolicyEngine,string	proc check(engine: PolicyEngine; cmdName: string): PolicyResult		17

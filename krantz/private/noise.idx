@@ -1,0 +1,37 @@
+nimTitle	noise	krantz/private/noise.html	module krantz/private/noise		0
+nim	promptBasic	krantz/private/noise.html#promptBasic	const promptBasic		10
+nim	promptPrimitives	krantz/private/noise.html#promptPrimitives	const promptPrimitives		11
+nim	promptHistory	krantz/private/noise.html#promptHistory	const promptHistory		12
+nim	promptKill	krantz/private/noise.html#promptKill	const promptKill		13
+nim	promptCompletion	krantz/private/noise.html#promptCompletion	const promptCompletion		14
+nim	promptWordEditing	krantz/private/noise.html#promptWordEditing	const promptWordEditing		15
+nim	promptPreloadBuffer	krantz/private/noise.html#promptPreloadBuffer	const promptPreloadBuffer		16
+nim	promptIncrementalHistorySearch	krantz/private/noise.html#promptIncrementalHistorySearch	const promptIncrementalHistorySearch		17
+nim	promptEmacsWordEditing	krantz/private/noise.html#promptEmacsWordEditing	const promptEmacsWordEditing		18
+nim	ktNone	krantz/private/noise.html#ktNone	KeyType.ktNone		26
+nim	ktCtrlC	krantz/private/noise.html#ktCtrlC	KeyType.ktCtrlC		26
+nim	ktCtrlD	krantz/private/noise.html#ktCtrlD	KeyType.ktCtrlD		26
+nim	ktCtrlX	krantz/private/noise.html#ktCtrlX	KeyType.ktCtrlX		26
+nim	ktEsc	krantz/private/noise.html#ktEsc	KeyType.ktEsc		26
+nim	KeyType	krantz/private/noise.html#KeyType	enum KeyType		26
+nim	CompletionHook	krantz/private/noise.html#CompletionHook	type CompletionHook		43
+nim	Noise	krantz/private/noise.html#Noise	object Noise		45
+nim	init	krantz/private/noise.html#init,typedesc[Noise]	proc init(x: typedesc[Noise]): Noise		69
+nim	getKeyType	krantz/private/noise.html#getKeyType,Noise	proc getKeyType(self: Noise): KeyType		167
+nim	getLine	krantz/private/noise.html#getLine,Noise	proc getLine(self: var Noise): string		170
+nim	readLine	krantz/private/noise.html#readLine,Noise	proc readLine(self: var Noise): bool		183
+nim	setPrompt	krantz/private/noise.html#setPrompt,Noise,Styler	proc setPrompt(self: var Noise; text: Styler)		212
+nim	setPrompt	krantz/private/noise.html#setPrompt,Noise,string	proc setPrompt(self: var Noise; text: string)		215
+nim	getPrompt	krantz/private/noise.html#getPrompt,Noise	proc getPrompt(self: var Noise): Styler		220
+nim	historyAdd	krantz/private/noise.html#historyAdd,Noise,string	proc historyAdd(self: var Noise; line: string)		224
+nim	historySetMaxLen	krantz/private/noise.html#historySetMaxLen,Noise,int	proc historySetMaxLen(self: var Noise; len: int)		227
+nim	histories	krantz/private/noise.html#histories.i,Noise	iterator histories(self: var Noise): string		230
+nim	historyPairs	krantz/private/noise.html#historyPairs.i,Noise	iterator historyPairs(self: var Noise): (int, string)		234
+nim	historySave	krantz/private/noise.html#historySave,Noise,string	proc historySave(self: var Noise; fileName: string): bool		238
+nim	historyLoad	krantz/private/noise.html#historyLoad,Noise,string	proc historyLoad(self: var Noise; fileName: string): bool		241
+nim	historyClear	krantz/private/noise.html#historyClear,Noise	proc historyClear(self: var Noise)		244
+nim	setCompletionHook	krantz/private/noise.html#setCompletionHook,Noise,CompletionHook	proc setCompletionHook(self: var Noise; prc: CompletionHook)		248
+nim	addCompletion	krantz/private/noise.html#addCompletion,Noise,string	proc addCompletion(self: var Noise; text: string)		251
+nim	preloadBuffer	krantz/private/noise.html#preloadBuffer,Noise,string	proc preloadBuffer(self: var Noise; preloadText: string)		259
+nim	killSetMaxLen	krantz/private/noise.html#killSetMaxLen,Noise,int	proc killSetMaxLen(self: var Noise; len: int)		291
+nimgrp	setprompt	krantz/private/noise.html#setPrompt-procs-all	proc		212

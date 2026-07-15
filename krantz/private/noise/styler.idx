@@ -1,0 +1,23 @@
+nimTitle	styler	krantz/private/noise/styler.html	module krantz/private/noise/styler		0
+nim	Styler	krantz/private/noise/styler.html#Styler	type Styler		36
+nim	addCmd	krantz/private/noise/styler.html#addCmd,Styler,string	proc addCmd(s: Styler; str: string)		39
+nim	addCmd	krantz/private/noise/styler.html#addCmd,Styler,Style	proc addCmd(s: Styler; style: Style)		42
+nim	addCmd	krantz/private/noise/styler.html#addCmd,Styler,set[Style]	proc addCmd(s: Styler; style: set[Style])		45
+nim	addCmd	krantz/private/noise/styler.html#addCmd,Styler,ForegroundColor	proc addCmd(s: Styler; color: ForegroundColor)		48
+nim	addCmd	krantz/private/noise/styler.html#addCmd,Styler,BackgroundColor	proc addCmd(s: Styler; color: BackgroundColor)		51
+nim	addCmd	krantz/private/noise/styler.html#addCmd,Styler,Color	proc addCmd(s: Styler; color: Color)		54
+nim	addCmd	krantz/private/noise/styler.html#addCmd,Styler,TerminalCmd	proc addCmd(s: Styler; cmd: TerminalCmd)		57
+nim	newStyler	krantz/private/noise/styler.html#newStyler	proc newStyler(): Styler		66
+nim	style	krantz/private/noise/styler.html#style.m,Styler,varargs[typed]	macro style(s: Styler; m: varargs[typed]): untyped		70
+nim	init	krantz/private/noise/styler.html#init.m,typedesc[Styler],varargs[typed]	macro init(x: typedesc[Styler]; m: varargs[typed]): Styler		77
+nim	show	krantz/private/noise/styler.html#show,Styler	proc show(s: Styler)		87
+nim	pairs	krantz/private/noise/styler.html#pairs.i,Styler	iterator pairs(s: Styler): (char32, int)		102
+nim	clear	krantz/private/noise/styler.html#clear,Styler	proc clear(s: Styler)		108
+nim	update	krantz/private/noise/styler.html#update,Styler,int,string	proc update(s: Styler; index: int; str: string)		111
+nim	update	krantz/private/noise/styler.html#update,Styler,int,Style	proc update(s: Styler; index: int; style: Style)		115
+nim	update	krantz/private/noise/styler.html#update,Styler,int,set[Style]	proc update(s: Styler; index: int; style: set[Style])		119
+nim	update	krantz/private/noise/styler.html#update,Styler,int,ForegroundColor	proc update(s: Styler; index: int; color: ForegroundColor)		123
+nim	update	krantz/private/noise/styler.html#update,Styler,int,BackgroundColor	proc update(s: Styler; index: int; color: BackgroundColor)		127
+nim	update	krantz/private/noise/styler.html#update,Styler,int,Color	proc update(s: Styler; index: int; color: Color)		131
+nimgrp	addcmd	krantz/private/noise/styler.html#addCmd-procs-all	proc		39
+nimgrp	update	krantz/private/noise/styler.html#update-procs-all	proc		111

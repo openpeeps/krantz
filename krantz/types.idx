@@ -1,0 +1,52 @@
+nimTitle	types	krantz/types.html	module krantz/types		0
+nim	ckNone	krantz/types.html#ckNone	ColorKind.ckNone		11
+nim	ckBlack	krantz/types.html#ckBlack	ColorKind.ckBlack		11
+nim	ckRed	krantz/types.html#ckRed	ColorKind.ckRed		11
+nim	ckGreen	krantz/types.html#ckGreen	ColorKind.ckGreen		11
+nim	ckYellow	krantz/types.html#ckYellow	ColorKind.ckYellow		11
+nim	ckBlue	krantz/types.html#ckBlue	ColorKind.ckBlue		11
+nim	ckMagenta	krantz/types.html#ckMagenta	ColorKind.ckMagenta		11
+nim	ckCyan	krantz/types.html#ckCyan	ColorKind.ckCyan		11
+nim	ckWhite	krantz/types.html#ckWhite	ColorKind.ckWhite		11
+nim	ColorKind	krantz/types.html#ColorKind	enum ColorKind		11
+nim	PolicyConfig	krantz/types.html#PolicyConfig	object PolicyConfig		22
+nim	HistoryConfig	krantz/types.html#HistoryConfig	object HistoryConfig		25
+nim	PromptConfig	krantz/types.html#PromptConfig	object PromptConfig		28
+nim	KrantzConfig	krantz/types.html#KrantzConfig	object KrantzConfig		34
+nim	prAllowed	krantz/types.html#prAllowed	PolicyResultKind.prAllowed		39
+nim	prDenied	krantz/types.html#prDenied	PolicyResultKind.prDenied		39
+nim	PolicyResultKind	krantz/types.html#PolicyResultKind	enum PolicyResultKind		39
+nim	PolicyResult	krantz/types.html#PolicyResult	object PolicyResult		43
+nim	PolicyEngine	krantz/types.html#PolicyEngine	type PolicyEngine		47
+nim	qkNone	krantz/types.html#qkNone	QuoteKind.qkNone		50
+nim	qkSingle	krantz/types.html#qkSingle	QuoteKind.qkSingle		50
+nim	qkDouble	krantz/types.html#qkDouble	QuoteKind.qkDouble		50
+nim	QuoteKind	krantz/types.html#QuoteKind	enum QuoteKind		50
+nim	tokWord	krantz/types.html#tokWord	TokenKind.tokWord		55
+nim	tokPipe	krantz/types.html#tokPipe	TokenKind.tokPipe		55
+nim	tokRedirOut	krantz/types.html#tokRedirOut	TokenKind.tokRedirOut		55
+nim	tokRedirOutApp	krantz/types.html#tokRedirOutApp	TokenKind.tokRedirOutApp		55
+nim	tokRedirIn	krantz/types.html#tokRedirIn	TokenKind.tokRedirIn		55
+nim	tokFdDup	krantz/types.html#tokFdDup	TokenKind.tokFdDup		55
+nim	tokBothOut	krantz/types.html#tokBothOut	TokenKind.tokBothOut		55
+nim	tokBackground	krantz/types.html#tokBackground	TokenKind.tokBackground		55
+nim	tokSemicolon	krantz/types.html#tokSemicolon	TokenKind.tokSemicolon		55
+nim	tokAnd	krantz/types.html#tokAnd	TokenKind.tokAnd		55
+nim	tokOr	krantz/types.html#tokOr	TokenKind.tokOr		55
+nim	tokEOF	krantz/types.html#tokEOF	TokenKind.tokEOF		55
+nim	TokenKind	krantz/types.html#TokenKind	enum TokenKind		55
+nim	Token	krantz/types.html#Token	object Token		69
+nim	rkInput	krantz/types.html#rkInput	RedirectionKind.rkInput		74
+nim	rkOutput	krantz/types.html#rkOutput	RedirectionKind.rkOutput		74
+nim	rkOutputAppend	krantz/types.html#rkOutputAppend	RedirectionKind.rkOutputAppend		74
+nim	rkFdDup	krantz/types.html#rkFdDup	RedirectionKind.rkFdDup		74
+nim	RedirectionKind	krantz/types.html#RedirectionKind	enum RedirectionKind		74
+nim	Redirection	krantz/types.html#Redirection	object Redirection		80
+nim	SimpleCommand	krantz/types.html#SimpleCommand	type SimpleCommand		85
+nim	Pipeline	krantz/types.html#Pipeline	type Pipeline		91
+nim	psSequential	krantz/types.html#psSequential	PipelineSep.psSequential		95
+nim	psAndThen	krantz/types.html#psAndThen	PipelineSep.psAndThen		95
+nim	psOrElse	krantz/types.html#psOrElse	PipelineSep.psOrElse		95
+nim	PipelineSep	krantz/types.html#PipelineSep	enum PipelineSep		95
+nim	ParsedLine	krantz/types.html#ParsedLine	object ParsedLine		100
+nim	ShellState	krantz/types.html#ShellState	type ShellState		104

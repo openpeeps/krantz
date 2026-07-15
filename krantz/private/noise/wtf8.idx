@@ -1,0 +1,27 @@
+nimTitle	wtf8	krantz/private/noise/wtf8.html	module krantz/private/noise/wtf8		0
+nim	UTF8_ACCEPT	krantz/private/noise/wtf8.html#UTF8_ACCEPT	const UTF8_ACCEPT		12
+nim	UTF8_REJECT	krantz/private/noise/wtf8.html#UTF8_REJECT	const UTF8_REJECT		13
+nim	wtf8_decode_state	krantz/private/noise/wtf8.html#wtf8_decode_state,int,int,int	proc wtf8_decode_state(state, codep: var int; byte: int): int		51
+nim	wtf8_decode	krantz/private/noise/wtf8.html#wtf8_decode,cstring,int,int	proc wtf8_decode(str: cstring; maxbytes: int; codep: var int): cstring		65
+nim	wtf8_decode	krantz/private/noise/wtf8.html#wtf8_decode,openArray[T],int	proc wtf8_decode[T](str: openArray[T]; maxBytes: int): tuple[codePoint, status: int]		77
+nim	wtf8_decode	krantz/private/noise/wtf8.html#wtf8_decode.i,string	iterator wtf8_decode(str: string): int		85
+nim	wtf8_encode	krantz/private/noise/wtf8.html#wtf8_encode,int,cstring	proc wtf8_encode(codepoint: int; str: var cstring): cstring		96
+nim	wtf8_encode	krantz/private/noise/wtf8.html#wtf8_encode,int,string	proc wtf8_encode(codepoint: int; str: var string)		116
+nim	wtf8_strlen	krantz/private/noise/wtf8.html#wtf8_strlen,string	proc wtf8_strlen(str: string): int		132
+nim	wtf8_is_continuation_byte	krantz/private/noise/wtf8.html#wtf8_is_continuation_byte,char	proc wtf8_is_continuation_byte(byte: char): bool		143
+nim	wtf8_is_initial_byte	krantz/private/noise/wtf8.html#wtf8_is_initial_byte,char	proc wtf8_is_initial_byte(byte: char): bool		146
+nim	utf8to16	krantz/private/noise/wtf8.html#utf8to16,string	proc utf8to16(str: string): seq[uint16]		166
+nim	utf32to16	krantz/private/noise/wtf8.html#utf32to16,openArray[int32],int	proc utf32to16(se: openArray[int32]; limit: int): seq[uint16]		171
+nim	is_lead_surrogate	krantz/private/noise/wtf8.html#is_lead_surrogate,int	proc is_lead_surrogate(cp: int): bool		178
+nim	surrogatePair	krantz/private/noise/wtf8.html#surrogatePair,int,int	proc surrogatePair(lead: int; trail: int): int		179
+nim	utf16to8	krantz/private/noise/wtf8.html#utf16to8,openArray[uint16]	proc utf16to8(se: openArray[uint16]): string		182
+nim	utf8to32	krantz/private/noise/wtf8.html#utf8to32,string	proc utf8to32(str: string): seq[int32]		196
+nim	utf8to32	krantz/private/noise/wtf8.html#utf8to32,string,seq[int32]	proc utf8to32(str: string; output: var seq[int32]): int		201
+nim	utf8to32	krantz/private/noise/wtf8.html#utf8to32,string,seq[int32],int,int	proc utf8to32(str: string; output: var seq[int32]; pos, len: int): int		209
+nim	utf32to8	krantz/private/noise/wtf8.html#utf32to8,openArray[int32]	proc utf32to8(se: openArray[int32]): string		219
+nim	utf32to8	krantz/private/noise/wtf8.html#utf32to8,openArray[int32],int	proc utf32to8(se: openArray[int32]; limit: int): string		224
+nim	replaceInvalid	krantz/private/noise/wtf8.html#replaceInvalid,string	proc replaceInvalid(src: string): string		231
+nimgrp	wtf8encode	krantz/private/noise/wtf8.html#wtf8_encode-procs-all	proc		96
+nimgrp	utf32to8	krantz/private/noise/wtf8.html#utf32to8-procs-all	proc		219
+nimgrp	utf8to32	krantz/private/noise/wtf8.html#utf8to32-procs-all	proc		196
+nimgrp	wtf8decode	krantz/private/noise/wtf8.html#wtf8_decode-procs-all	proc		65

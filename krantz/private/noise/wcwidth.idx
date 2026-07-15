@@ -1,0 +1,5 @@
+nimTitle	wcwidth	krantz/private/noise/wcwidth.html	module krantz/private/noise/wcwidth		0
+nim	mk_wcwidth	krantz/private/noise/wcwidth.html#mk_wcwidth,int32	proc mk_wcwidth(ucs: int32): int		83
+nim	mk_wcswidth	krantz/private/noise/wcwidth.html#mk_wcswidth,openArray[int32]	proc mk_wcswidth(pwcs: openArray[int32]): int		158
+nim	mk_wcwidth_cjk	krantz/private/noise/wcwidth.html#mk_wcwidth_cjk,int32	proc mk_wcwidth_cjk(ucs: int32): int		164
+nim	mk_wcswidth_cjk	krantz/private/noise/wcwidth.html#mk_wcswidth_cjk,openArray[int32]	proc mk_wcswidth_cjk(pwcs: openArray[int32]): int		226

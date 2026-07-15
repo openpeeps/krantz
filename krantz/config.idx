@@ -1,0 +1,10 @@
+nimTitle	config	krantz/config.html	module krantz/config		0
+nim	configDir	krantz/config.html#configDir	proc configDir(): string		12
+nim	configFile	krantz/config.html#configFile	proc configFile(): string		15
+nim	saveConfig	krantz/config.html#saveConfig,KrantzConfig	proc saveConfig(cfg: KrantzConfig)		18
+nim	loadConfig	krantz/config.html#loadConfig	proc loadConfig(): KrantzConfig		20
+nim	initConfig	krantz/config.html#initConfig	proc initConfig()		54
+nim	printConfig	krantz/config.html#printConfig	proc printConfig()		63
+nim	configDenyList	krantz/config.html#configDenyList	proc configDenyList()		69
+nim	configDenyAdd	krantz/config.html#configDenyAdd,string	proc configDenyAdd(cmd: string)		78
+nim	configDenyRemove	krantz/config.html#configDenyRemove,string	proc configDenyRemove(cmd: string)		92

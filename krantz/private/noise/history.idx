@@ -1,0 +1,21 @@
+nimTitle	history	krantz/private/noise/history.html	module krantz/private/noise/history		0
+nim	History	krantz/private/noise/history.html#History	object History		13
+nim	init	krantz/private/noise/history.html#init,typedesc[History]	proc init(x: typedesc[History]): History		23
+nim	add	krantz/private/noise/history.html#add,History,string	proc add(self: var History; line: string)		27
+nim	setMaxLen	krantz/private/noise/history.html#setMaxLen,History,int	proc setMaxLen(self: var History; maxLen: int)		43
+nim	items	krantz/private/noise/history.html#items.i,History	iterator items(self: var History): string		50
+nim	pairs	krantz/private/noise/history.html#pairs.i,History	iterator pairs(self: var History): (int, string)		54
+nim	save	krantz/private/noise/history.html#save,History,string	proc save(self: var History; fileName: string): bool		58
+nim	load	krantz/private/noise/history.html#load,History,string	proc load(self: var History; fileName: string): bool		65
+nim	clear	krantz/private/noise/history.html#clear,History	proc clear(self: var History)		73
+nim	available	krantz/private/noise/history.html#available,History	proc available(self: var History): bool		76
+nim	get	krantz/private/noise/history.html#get,History	proc get(self: var History): string		79
+nim	moveUp	krantz/private/noise/history.html#moveUp,History	proc moveUp(self: var History)		85
+nim	moveDown	krantz/private/noise/history.html#moveDown,History	proc moveDown(self: var History)		90
+nim	moveTop	krantz/private/noise/history.html#moveTop,History	proc moveTop(self: var History)		95
+nim	moveBottom	krantz/private/noise/history.html#moveBottom,History	proc moveBottom(self: var History)		99
+nim	commonPrefixSearch	krantz/private/noise/history.html#commonPrefixSearch,History,string,bool	proc commonPrefixSearch(self: var History; prefix: string; back: bool): bool		103
+nim	find	krantz/private/noise/history.html#find,History,string,seq[string]	proc find(self: var History; text: string; output: var seq[string])		116
+nim	popLast	krantz/private/noise/history.html#popLast,History	proc popLast(self: var History)		121
+nim	atBottom	krantz/private/noise/history.html#atBottom,History	proc atBottom(self: History): bool		127
+nim	updateLast	krantz/private/noise/history.html#updateLast,History,string	proc updateLast(self: var History; text: string)		130

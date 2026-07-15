@@ -1,0 +1,5 @@
+nimTitle	prompt	krantz/private/noise/prompt.html	module krantz/private/noise/prompt		0
+nim	Prompt	krantz/private/noise/prompt.html#Prompt	object Prompt		12
+nim	recalculate	krantz/private/noise/prompt.html#recalculate,Prompt,Styler,int	proc recalculate(p: var Prompt; text: Styler; screenWidth: int)		19
+nim	show	krantz/private/noise/prompt.html#show,Prompt	proc show(p: Prompt)		39
+nim	genNewLine	krantz/private/noise/prompt.html#genNewLine,Prompt	proc genNewLine(p: var Prompt)		43

@@ -1,0 +1,10 @@
+nimTitle	prompt	krantz/prompt.html	module krantz/prompt		0
+nim	foreground	krantz/prompt.html#foreground,string,ColorKind	proc foreground(s: string; color: ColorKind): string		12
+nim	bold	krantz/prompt.html#bold,string	proc bold(s: string): string		17
+nim	tilde	krantz/prompt.html#tilde,string	proc tilde(path: string): string		20
+nim	user	krantz/prompt.html#user	proc user(): string		27
+nim	host	krantz/prompt.html#host	proc host(): string		30
+nim	getCwd	krantz/prompt.html#getCwd	proc getCwd(): string		38
+nim	getGitBranch	krantz/prompt.html#getGitBranch	proc getGitBranch(): string		44
+nim	makePrompt	krantz/prompt.html#makePrompt,int,PromptConfig,string	proc makePrompt(lastExitCode: int; pc: PromptConfig; branch: string): string		61
+nim	makePromptStyler	krantz/prompt.html#makePromptStyler,int,PromptConfig,string	proc makePromptStyler(lastExitCode: int; pc: PromptConfig; branch: string): Styler		80

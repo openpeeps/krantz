@@ -1,0 +1,27 @@
+nimTitle	basic	krantz/private/noise/basic.html	module krantz/private/noise/basic		0
+nim	char32	krantz/private/noise/basic.html#char32	type char32		12
+nim	char16	krantz/private/noise/basic.html#char16	type char16		13
+nim	char8	krantz/private/noise/basic.html#char8	type char8		14
+nim	META	krantz/private/noise/basic.html#META	const META		17
+nim	CTRL	krantz/private/noise/basic.html#CTRL	const CTRL		18
+nim	ESC_KEY	krantz/private/noise/basic.html#ESC_KEY	const ESC_KEY		21
+nim	UP_ARROW_KEY	krantz/private/noise/basic.html#UP_ARROW_KEY	const UP_ARROW_KEY		22
+nim	DOWN_ARROW_KEY	krantz/private/noise/basic.html#DOWN_ARROW_KEY	const DOWN_ARROW_KEY		23
+nim	RIGHT_ARROW_KEY	krantz/private/noise/basic.html#RIGHT_ARROW_KEY	const RIGHT_ARROW_KEY		24
+nim	LEFT_ARROW_KEY	krantz/private/noise/basic.html#LEFT_ARROW_KEY	const LEFT_ARROW_KEY		25
+nim	HOME_KEY	krantz/private/noise/basic.html#HOME_KEY	const HOME_KEY		26
+nim	END_KEY	krantz/private/noise/basic.html#END_KEY	const END_KEY		27
+nim	DELETE_KEY	krantz/private/noise/basic.html#DELETE_KEY	const DELETE_KEY		28
+nim	PAGE_UP_KEY	krantz/private/noise/basic.html#PAGE_UP_KEY	const PAGE_UP_KEY		29
+nim	PAGE_DOWN_KEY	krantz/private/noise/basic.html#PAGE_DOWN_KEY	const PAGE_DOWN_KEY		30
+nim	PROMPT_MAX_LINE	krantz/private/noise/basic.html#PROMPT_MAX_LINE	const PROMPT_MAX_LINE		32
+nim	ctrlChar	krantz/private/noise/basic.html#ctrlChar.t,char	template ctrlChar(x: char): int		34
+nim	altChar	krantz/private/noise/basic.html#altChar.t,char	template altChar(x: char): int		37
+nim	cleanupCtrl	krantz/private/noise/basic.html#cleanupCtrl,char32	proc cleanupCtrl(c: char32): char32		42
+nim	isControlChar	krantz/private/noise/basic.html#isControlChar,char32	proc isControlChar(testChar: char32): bool		53
+nim	beep	krantz/private/noise/basic.html#beep	proc beep()		57
+nim	calcScreenPos	krantz/private/noise/basic.html#calcScreenPos,int,int,int,int	proc calcScreenPos(x, y, screenColumns, charCount: int): tuple[x, y: int]		67
+nim	isAlphaNum	krantz/private/noise/basic.html#isAlphaNum,char32	proc isAlphaNum(c: char32): bool		92
+nim	oneWordLeft	krantz/private/noise/basic.html#oneWordLeft,int,seq[char32]	proc oneWordLeft(pos: int; data: seq[char32]): int		95
+nim	oneWordRight	krantz/private/noise/basic.html#oneWordRight,int,seq[char32],int	proc oneWordRight(pos: int; data: seq[char32]; len: int): int		102
+nim	isUnsupportedTerm	krantz/private/noise/basic.html#isUnsupportedTerm	proc isUnsupportedTerm(): bool		109
