@@ -19,6 +19,7 @@ proc runShell() =
   let interactive = isTerminal(0)
   if interactive:
     initTerminal()
+    emitCurrentDir(getCurrentDir())
     for h in historyList:
       gNoise.historyAdd(h)
 
@@ -27,6 +28,8 @@ proc runShell() =
     if cwd != state.lastCwd:
       state.lastCwd = cwd
       state.cachedBranch = if state.config.prompt.git: getGitBranch() else: ""
+      if interactive:
+        emitCurrentDir(cwd)
 
     let promptStr = makePrompt(state.lastExitCode, state.config.prompt, state.cachedBranch)
 
@@ -36,6 +39,10 @@ proc runShell() =
       let promptStyler = makePromptStyler(state.lastExitCode, state.config.prompt, state.cachedBranch)
       let (success, input) = readLineInput(promptStyler)
       if not success:
+        if isShuttingDown():
+          echo ""
+          state.shouldExit = true
+          break
         let kt = gNoise.getKeyType()
         if kt == ktCtrlD:
           echo ""
@@ -97,24 +104,58 @@ proc printUsage() =
   echo "Run without arguments to enter the REPL shell."
 
 proc doComplete(word: string) =
+  let expanded = word.expandTilde()
+
+  # Phase 2: ends with / → list contents
+  if word.endsWith("/"):
+    try:
+      for kind, path in walkDir(expanded):
+        let entry = path.extractFilename()
+        if kind in {pcDir, pcLinkToDir}:
+          echo word / entry & "/"
+        else:
+          echo word / entry
+    except OSError: discard
+    return
+
+  # Phase 1: exact directory → add / and siblings
+  if dirExists(expanded):
+    echo word & "/"
+    let parent = word.parentDir()
+    let basename = word.extractFilename()
+    let absParent = if parent.len > 0: parent.expandTilde() else: "."
+    try:
+      for kind, path in walkDir(absParent):
+        let name = path.extractFilename()
+        if name.toLowerAscii() == basename.toLowerAscii(): continue
+        if name.len >= basename.len and name.toLowerAscii()[0..<basename.len] == basename.toLowerAscii():
+          let completion = if parent.len > 0: parent / name else: name
+          if kind in {pcDir, pcLinkToDir}:
+            echo completion & "/"
+          else:
+            echo completion
+    except OSError: discard
+    return
+
+  # Phase 3: prefix match
   var dir = "."
   var prefix = word
-
-  if word.contains("/"):
-    dir = word.parentDir().expandTilde()
+  if word.contains("/") or word.contains("~"):
+    dir = word.parentDir()
     prefix = word.extractFilename()
-  else:
-    dir = "."
-    prefix = word
+  let absDir = dir.expandTilde()
 
   var candidates: seq[string]
   try:
-    for kind, path in walkDir(dir):
+    for kind, path in walkDir(absDir):
       let name = path.extractFilename()
       if name.len >= prefix.len and name.toLowerAscii()[0..<prefix.len] == prefix.toLowerAscii():
-        candidates.add(name)
-  except OSError:
-    discard
+        let completion = if dir != ".": dir / name else: name
+        if kind in {pcDir, pcLinkToDir}:
+          candidates.add(completion & "/")
+        else:
+          candidates.add(completion)
+  except OSError: discard
   if candidates.len > 0:
     sort(candidates, cmpIgnoreCase)
     for c in candidates:

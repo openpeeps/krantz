@@ -7,7 +7,7 @@ proc loadShellEnv*() =
     else: getEnv("SHELL")
   if shell.len == 0: return
 
-  let (output, exitCode) = execCmdEx(shell & " -l -c 'env -0'")
+  let (output, exitCode) = execCmdEx(shell & " -l -c 'source ~/.zshrc 2>/dev/null; source ~/.profile 2>/dev/null; env -0'")
   if exitCode != 0: return
   if output.len == 0: return
 

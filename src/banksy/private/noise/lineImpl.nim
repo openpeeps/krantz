@@ -311,7 +311,7 @@ when promptCompletion:
   proc makeSet(s: string): set[char] {.compileTime.} =
     for c in s: result.incl c
 
-  const breakChars = makeSet(" =+-/\\*?'`&<>;|@{([])}\"")
+  const breakChars = makeSet(" =+-\\*?'`&<>;|@{([])}\"")
 
   proc validChar(self: Line, index: int): bool =
     if index < 0 or index > self.data.len:

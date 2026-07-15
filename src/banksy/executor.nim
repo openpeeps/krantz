@@ -100,7 +100,8 @@ proc executePipeline*(pipe: Pipeline): int =
   var lastStatus: cint = 0
   for pid in pids:
     var status: cint = 0
-    discard waitpid(pid, status, 0)
+    while waitpid(pid, status, 0) < 0 and errno == EINTR:
+      discard
     lastStatus = status
 
   if WIFEXITED(lastStatus):

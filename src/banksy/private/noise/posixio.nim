@@ -9,6 +9,22 @@
 import posix, termios, terminal
 import wtf8, basic
 
+var gShuttingDown* {.volatile.}: bool
+
+proc resetTerminal*() {.noconv.}
+
+proc shutdownHandler(sig: cint) {.noconv.} =
+  gShuttingDown = true
+  resetTerminal()
+
+proc installShutdownHandler*() =
+  var sa: Sigaction
+  sa.sa_handler = shutdownHandler
+  discard sigemptyset(sa.sa_mask)
+  sa.sa_flags = 0
+  discard sigaction(SIGHUP, sa)
+  discard sigaction(SIGTERM, sa)
+
 type
   IoCtx* = ref object
     termios: Termios
@@ -23,15 +39,14 @@ proc newIoCtxAux(): IoCtx =
   result.rawMode = false
 
 proc windowSizeChanged(x: cint) {.noconv.} =
-  # do nothing here but setting this flag
-  if gIoCtx == nil:
+  if gIoCtx != nil:
     gIoCtx.gotResize = true
 
 proc installWindowChangeHandler() =
   const SIGWINCH = 28.cint
   var sa: Sigaction
   discard sigemptyset(sa.sa_mask)
-  sa.sa_flags = 0
+  sa.sa_flags = SA_RESTART
   sa.sa_handler = windowSizeChanged
   discard sigaction(SIGWINCH, sa)
 
@@ -48,7 +63,7 @@ proc disableRawMode*(ctx: IoCtx) =
     if fd.tcSetAttr(TCSADRAIN, ctx.termios.addr) != -1:
       ctx.rawMode = false
 
-proc resetTerminal() {.noconv.} =
+proc resetTerminal*() {.noconv.} =
   if gIoCtx != nil:
     gIoCtx.disableRawMode()
 
@@ -108,7 +123,13 @@ proc readUnicodeChar(): char32 =
     # Continue reading if interrupted by signal.
     while true:
       nread = read(fd, c.addr, 1)
-      if not (nread == -1 and errno == EINTR): break
+      if nread == -1 and errno == EINTR:
+        if gShuttingDown:
+          resetTerminal()
+          return 0
+        continue
+      else:
+        break
 
     if nread <= 0: return 0
     if c <= 0x7F: #short circuit ASCII
@@ -227,8 +248,18 @@ proc ctrlLeftArrowKeyProc(ctx: var EscapeCtx, c: char32): char32 =
   ctx.thisKey or CTRL or LEFT_ARROW_KEY
 
 proc escFailureProc(ctx: var EscapeCtx, c: char32): char32 =
-  beep()
-  result = -1
+  var cur = c
+  while true:
+    if cur == 0:
+      return 0
+    if cur >= 0x40 and cur <= 0x7E:
+      beep()
+      return -1
+    if (cur >= 0x20 and cur <= 0x2F) or (cur >= 0x30 and cur <= 0x3F):
+      cur = ctx.readChar()
+    else:
+      beep()
+      return -1
 
 # Handle ESC [ 1 ; 3 (or 5) <more stuff> escape sequences
 let escLBracket1Semicolon3or5Dispatch = ("ABCD", [

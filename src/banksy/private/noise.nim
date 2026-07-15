@@ -136,6 +136,11 @@ when promptBasic:
       self.keyType = ktNone
 
       if c <= 0:
+        if gShuttingDown:
+          stdout.write("\n")
+          self.io.disableRawMode()
+          result = false
+          break
         # escape sequence parsing failure
         self.line.refreshLine()
         continue
