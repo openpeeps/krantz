@@ -1,6 +1,6 @@
-version       = "0.1.0"
+version       = "0.1.1"
 author        = "George Lemon"
-description   = "A modern ZSH alternative, written in Nim"
+description   = "A fast ZSH alternative"
 license       = "MIT"
 srcDir        = "src"
 bin           = @["krantz"]
