@@ -1,15 +1,16 @@
 <p align="center">
-  Banksy ~ a fast ZSH alternative written in Nim<br>
-  Compiled &bullet; Command Policy &bullet;
+  <img src="https://raw.githubusercontent.com/krantz/krantz/main/.github/krantz.png" alt="krantz" width="240px" height="auto"><br>
+  Krantz ~ a fast ZSH alternative written in Nim<br>
+  Compiled &bullet; YAML Command Policy &bullet; History
 </p>
 
 <p align="center">
-  <code>nimble install banksy</code>
+  <code>nimble install krantz</code>
 </p>
 
 <p align="center">
-  <a href="https://openpeeps.github.io/banksy">API reference</a><br>
-  <img src="https://github.com/openpeeps/banksy/workflows/test/badge.svg" alt="Github Actions">  <img src="https://github.com/openpeeps/banksy/workflows/docs/badge.svg" alt="Github Actions">
+  <a href="https://openpeeps.github.io/krantz">API reference</a><br>
+  <img src="https://github.com/openpeeps/krantz/workflows/test/badge.svg" alt="Github Actions">  <img src="https://github.com/openpeeps/krantz/workflows/docs/badge.svg" alt="Github Actions">
 </p>
 
 ## 😍 Key Features
@@ -19,11 +20,14 @@
 - Variable assignment (`FOO=bar`) with `export` / `unset`
 - Pipelines, redirections, background processes, conditional operators
 - Policy engine to deny dangerous commands
-- SQLite-backed persistent history
+- Persistent storage for history
 - Styled configurable prompt (user, host, git, cwd)
 - OSC 7 terminal cwd tracking
-- YAML configuration (`~/.banksy/config.yaml`)
+- YAML configuration (`~/.krantz/config.yaml`)
 - Builtins: `cd`, `exit`, `history`, `trash`, `export`, `unset`
+
+## Install
+You need nim. Once built add it to your `/etc/shells`, then in Terminal app add the absolute path
 
 ## Line Editing
 
@@ -41,12 +45,12 @@ OSC 7 cwd emission for same-directory new tabs. Graceful SIGHUP/SIGTERM shutdown
 ...
 
 ### ❤ Contributions & Support
-- 🐛 Found a bug? [Create a new Issue](https://github.com/openpeeps/banksy/issues)
-- 👋 Wanna help? [Fork it!](https://github.com/openpeeps/banksy/fork)
+- 🐛 Found a bug? [Create a new Issue](https://github.com/openpeeps/krantz/issues)
+- 👋 Wanna help? [Fork it!](https://github.com/openpeeps/krantz/fork)
 
 |  |  |
 |---|---|
-| <a href="https://opencode.ai/go?ref=BHMEEK48QX"><img src="https://github.com/openpeeps/banksy/blob/main/.github/opencode.png" alt="OpenCode"></a> | Switch to **Open-Source LLMs** via OpenCode GO, choosing from a variety of powerful models such as DeepSeek, Qwen, Kimi, GLM-5, MiniMax, MiMo. 🍕 [Use our referral link to get started!](https://opencode.ai/go?ref=BHMEEK48QX)|
+| <a href="https://opencode.ai/go?ref=BHMEEK48QX"><img src="https://github.com/openpeeps/krantz/blob/main/.github/opencode.png" alt="OpenCode"></a> | Switch to **Open-Source LLMs** via OpenCode GO, choosing from a variety of powerful models such as DeepSeek, Qwen, Kimi, GLM-5, MiniMax, MiMo. 🍕 [Use our referral link to get started!](https://opencode.ai/go?ref=BHMEEK48QX)|
 
 ### 🎩 License
 LGPLv3 license. [Made by Humans from OpenPeeps](https://github.com/openpeeps).<br>

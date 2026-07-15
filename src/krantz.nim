@@ -1,6 +1,6 @@
 import std/[algorithm, strutils, os, tables]
-import ./banksy/private/noise
-import banksy/[config, env, history, parser, executor, policy, prompt, term, types, expansion]
+import ./krantz/private/noise
+import krantz/[config, env, history, parser, executor, policy, prompt, term, types, expansion]
 
 proc runShell() =
   loadShellEnv()

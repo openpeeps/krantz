@@ -3,7 +3,7 @@ author        = "George Lemon"
 description   = "A modern ZSH alternative, written in Nim"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["banksy"]
+bin           = @["krantz"]
 
 requires "nim >= 2.2.0"
 requires "openparser >= 0.1.6"
