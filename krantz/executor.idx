@@ -1,4 +1,4 @@
 nimTitle	executor	krantz/executor.html	module krantz/executor		0
 nim	sourceFile	krantz/executor.html#sourceFile,string	proc sourceFile(path: string): bool		18
-nim	executePipeline	krantz/executor.html#executePipeline,Pipeline	proc executePipeline(pipe: Pipeline): int		58
-nim	executeParsedLine	krantz/executor.html#executeParsedLine,ParsedLine,ShellState	proc executeParsedLine(parsed: ParsedLine; state: var ShellState): int		202
+nim	executePipeline	krantz/executor.html#executePipeline,Pipeline	proc executePipeline(pipe: Pipeline): int		63
+nim	executeParsedLine	krantz/executor.html#executeParsedLine,ParsedLine,ShellState	proc executeParsedLine(parsed: ParsedLine; state: var ShellState): int		207
