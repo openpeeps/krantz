@@ -15,6 +15,41 @@ proc setpgid(pid: Pid, pgid: Pid): cint {.importc, header: "<unistd.h>".}
 proc tcsetpgrp(fd: cint, pgid: Pid): cint {.importc, header: "<unistd.h>".}
 proc tcgetpgrp(fd: cint): Pid {.importc, header: "<unistd.h>".}
 
+proc sourceFile*(path: string): bool =
+  var pipefds: array[2, cint]
+  if posix.pipe(pipefds) != 0: return false
+  let pid = fork()
+  if pid < 0:
+    discard close(pipefds[0]); discard close(pipefds[1])
+    return false
+  if pid == 0:
+    discard close(pipefds[0])
+    let srcShell = os.getEnv("SHELL", "/bin/sh")
+    let srcShellName = srcShell.splitPath().tail
+    discard dup2(pipefds[1], 1)
+    discard close(pipefds[1])
+    discard execlp(srcShell.cstring, srcShellName.cstring, "-c".cstring,
+      (". " & path & " >/dev/null; /usr/bin/env").cstring, nil)
+    quit(1)
+  discard close(pipefds[1])
+  var buf: array[65536, char]
+  var envOutput = ""
+  while true:
+    let n = posix.read(pipefds[0], buf[0].addr, 65536)
+    if n <= 0: break
+    for j in 0..<int(n): envOutput.add(buf[j])
+  discard close(pipefds[0])
+  var childStatus: cint = 0
+  discard waitpid(pid, childStatus, 0)
+  if not (WIFEXITED(childStatus) and WEXITSTATUS(childStatus) == 0):
+    return false
+  for line in envOutput.splitLines():
+    if line.len == 0: continue
+    let eq = line.find('=')
+    if eq > 0:
+      os.putEnv(line[0..eq-1], line[eq+1..^1])
+  return true
+
 proc toCstringArray(a: seq[string]): cstringArray =
   result = cast[cstringArray](alloc0(sizeof(cstring) * (a.len + 1)))
   for i in 0..<a.len:
@@ -167,7 +202,7 @@ proc executePipeline*(pipe: Pipeline): int =
 proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
   if parsed.pipelines.len == 0: return 0
 
-  for i, pipe in parsed.pipelines:
+  for i, pipeline in parsed.pipelines:
     if i > 0 and i - 1 < parsed.separators.len:
       case parsed.separators[i-1]
       of psAndThen:
@@ -177,8 +212,8 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
       of psSequential:
         discard
 
-    if pipe.commands.len > 0:
-      let firstCmd = pipe.commands[0]
+    if pipeline.commands.len > 0:
+      let firstCmd = pipeline.commands[0]
 
       if firstCmd.args.len == 0:
         result = 0; state.lastExitCode = 0
@@ -187,10 +222,14 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
       let cmdName = firstCmd.args[0]
       if firstCmd.args.len > 0:
         if cmdName == "export":
-          for i in 1..<firstCmd.args.len:
-            let varName = firstCmd.args[i]
-            if state.vars.hasKey(varName):
-              putEnv(varName, state.vars[varName])
+          if firstCmd.args.len == 1:
+            for k, v in os.envPairs():
+              echo k, "=", v
+          else:
+            for i in 1..<firstCmd.args.len:
+              let varName = firstCmd.args[i]
+              if state.vars.hasKey(varName):
+                putEnv(varName, state.vars[varName])
           result = 0; state.lastExitCode = 0; continue
         if cmdName == "unset":
           for i in 1..<firstCmd.args.len:
@@ -237,6 +276,14 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
           state.lastExitCode = 0
           continue
 
+        if cmdName == "source" or cmdName == ".":
+          if firstCmd.args.len < 2:
+            stderr.writeLine("krantz: source: missing filename")
+            result = 1; state.lastExitCode = 1; continue
+          if not sourceFile(firstCmd.args[1]):
+            stderr.writeLine("krantz: source: error sourcing " & firstCmd.args[1])
+            result = 1; state.lastExitCode = 1; continue
+          result = 0; state.lastExitCode = 0; continue
         if cmdName == "trash":
           if firstCmd.args.len == 1:
             stderr.writeLine("krantz: trash: missing operand")
@@ -263,5 +310,5 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
           result = 0; state.lastExitCode = 0; continue
         except OSError:
           discard
-    result = executePipeline(pipe)
+    result = executePipeline(pipeline)
     state.lastExitCode = result

@@ -26,6 +26,9 @@ proc runShell() =
   let interactive = isTerminal(0)
   if interactive:
     initTerminal()
+    let profilePath = os.getHomeDir() / ".profile"
+    if os.fileExists(profilePath):
+      discard sourceFile(profilePath)
     emitCurrentDir(getCurrentDir())
     for h in historyList:
       gNoise.historyAdd(h)

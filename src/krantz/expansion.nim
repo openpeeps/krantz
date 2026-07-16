@@ -14,6 +14,38 @@ proc tildeExpand*(word: string): string =
   except OSError:
     result = word
 
+proc isSimpleVarRef(word: string): bool =
+  if word.len < 2 or word[0] != '$': return false
+  if word.contains('`') or word.contains("$("): return false
+  var i = 1
+  if word[i] == '{':
+    inc i
+    if i >= word.len: return false
+    while i < word.len and word[i] != '}':
+      inc i
+    if i >= word.len: return false
+    inc i
+    result = i >= word.len
+  else:
+    if not (word[i] == '_' or word[i].isAlphaAscii): return false
+    while i < word.len and (word[i] == '_' or word[i].isAlphaNumeric):
+      inc i
+    result = i >= word.len
+
+proc expandSimpleVar(word: string; vars: TableRef[string, string]): string =
+  var varName: string
+  var i = 1
+  if word[i] == '{':
+    inc i
+    while i < word.len and word[i] != '}':
+      varName.add(word[i]); inc i
+  else:
+    while i < word.len and (word[i] == '_' or word[i].isAlphaNumeric):
+      varName.add(word[i]); inc i
+  if vars != nil and vars.hasKey(varName):
+    return vars[varName]
+  return os.getEnv(varName)
+
 proc executeAndCapture(cmd: string): string =
   var pipefds: array[2, cint]
   if posix.pipe(pipefds) != 0: return ""
@@ -135,7 +167,10 @@ proc expandWord*(word: string; quoteKind: QuoteKind; vars: TableRef[string, stri
     w = tildeExpand(w)
 
   if quoteKind != qkSingle and (w.contains('$') or w.contains('`')):
-    w = expandWordViaShell(w, vars)
+    if isSimpleVarRef(w):
+      w = expandSimpleVar(w, vars)
+    else:
+      w = expandWordViaShell(w, vars)
 
   if quoteKind == qkNone and (w.contains('*') or w.contains('?') or w.contains('[')):
     result = expandGlob(w)
@@ -147,7 +182,10 @@ proc expandRedirTarget(target: string; vars: TableRef[string, string]): string =
   if t.len > 0 and t[0] == '~':
     t = tildeExpand(t)
   if t.contains('$') or t.contains('`'):
-    t = expandWordViaShell(t, vars)
+    if isSimpleVarRef(t):
+      t = expandSimpleVar(t, vars)
+    else:
+      t = expandWordViaShell(t, vars)
   result = t
 
 proc expandLine*(parsed: ParsedLine; vars: TableRef[string, string]): ParsedLine =
@@ -158,15 +196,23 @@ proc expandLine*(parsed: ParsedLine; vars: TableRef[string, string]): ParsedLine
 
       var newArgs: seq[string] = @[]
       var newQuotes: seq[QuoteKind] = @[]
-      for i, arg in cmd.args:
+      var i = 0
+      while i < cmd.args.len:
+        let arg = cmd.args[i]
         let qk = if i < cmd.argQuotes.len: cmd.argQuotes[i] else: qkNone
-        if isAssignment(arg, qk):
+        if isAssignment(arg, qk) and arg.endsWith('='):
           let eq = arg.find('=')
           let varName = arg[0..eq-1]
-          let varValueRaw = arg[eq+1..^1]
-          var varValue = varValueRaw
+          var varValue = arg[eq+1..^1]
+          if varValue.len == 0 and i + 1 < cmd.args.len and
+             i + 1 < cmd.argQuotes.len and cmd.argQuotes[i+1] == qkDouble:
+            varValue = cmd.args[i+1]
+            inc i
           if varValue.contains('~') or varValue.contains('$') or varValue.contains('`'):
-            varValue = expandWordViaShell(varValue, vars)
+            if isSimpleVarRef(varValue):
+              varValue = expandSimpleVar(varValue, vars)
+            else:
+              varValue = expandWordViaShell(varValue, vars)
             if varValue.len > 0 and varValue[0] == '~':
               varValue = tildeExpand(varValue)
           if cmd.args.len == 1 and cmd.redirects.len == 0:
@@ -178,6 +224,7 @@ proc expandLine*(parsed: ParsedLine; vars: TableRef[string, string]): ParsedLine
           for e in expanded:
             newArgs.add(e)
             newQuotes.add(qk)
+        inc i
       cmd.args = newArgs
       cmd.argQuotes = newQuotes
 
