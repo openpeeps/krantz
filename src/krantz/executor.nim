@@ -29,7 +29,7 @@ proc sourceFile*(path: string): bool =
     discard dup2(pipefds[1], 1)
     discard close(pipefds[1])
     discard execlp(srcShell.cstring, srcShellName.cstring, "-c".cstring,
-      (". " & path & " >/dev/null; /usr/bin/env").cstring, nil)
+      (". " & path & " >/dev/null; export").cstring, nil)
     quit(1)
   discard close(pipefds[1])
   var buf: array[65536, char]
@@ -45,9 +45,14 @@ proc sourceFile*(path: string): bool =
     return false
   for line in envOutput.splitLines():
     if line.len == 0: continue
-    let eq = line.find('=')
-    if eq > 0:
-      os.putEnv(line[0..eq-1], line[eq+1..^1])
+    var entry = line
+    if entry.startsWith("export "): entry = entry[7..^1]
+    let eq = entry.find('=')
+    if eq <= 0: continue
+    var val = entry[eq+1..^1]
+    if val.len >= 2 and val[0] == '\'' and val[^1] == '\'':
+      val = val[1..^2]
+    os.putEnv(entry[0..eq-1], val)
   return true
 
 proc toCstringArray(a: seq[string]): cstringArray =

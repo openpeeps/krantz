@@ -25,7 +25,7 @@ proc loadShellEnv*() =
     discard dup2(pipefds[1], 1)
     discard close(pipefds[1])
     discard execlp(shell.cstring, shellName.cstring, "-l".cstring, "-c".cstring,
-      "source ~/.zshrc 2>/dev/null; source ~/.profile 2>/dev/null; env -0".cstring, nil)
+      "source ~/.zshrc 2>/dev/null; source ~/.profile 2>/dev/null; export".cstring, nil)
     quit(1)
   discard close(pipefds[1])
   var buf: array[65536, char]
@@ -41,8 +41,13 @@ proc loadShellEnv*() =
     return
   if output.len == 0: return
 
-  for entry in output.split('\0'):
-    if entry.len == 0: continue
+  for line in output.splitLines():
+    if line.len == 0: continue
+    var entry = line
+    if entry.startsWith("export "): entry = entry[7..^1]
     let eq = entry.find('=')
-    if eq > 0:
-      putEnv(entry[0..<eq], entry[eq+1..^1])
+    if eq <= 0: continue
+    var val = entry[eq+1..^1]
+    if val.len >= 2 and val[0] == '\'' and val[^1] == '\'':
+      val = val[1..^2]
+    putEnv(entry[0..eq-1], val)
