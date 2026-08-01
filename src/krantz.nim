@@ -5,8 +5,9 @@
 #          https://github.com/georgelemon/krantz
 
 import std/[algorithm, strutils, os, tables]
+import boogie/stores/rdbms
 import ./krantz/private/noise
-import krantz/[config, env, history, parser, executor, policy, prompt, term, types, expansion]
+import krantz/[config, env, history, parser, executor, policy, prompt, term, types, expansion, chat, llm]
 
 proc runShell() =
   loadShellEnv()
@@ -74,6 +75,14 @@ proc runShell() =
     if trimmed.len == 0:
       continue
 
+    if isChatCommand(trimmed):
+      state.lastExitCode = handleChatCommand(trimmed)
+      if historyList.len == 0 or historyList[^1] != trimmed:
+        addHistory(state, trimmed)
+        historyList.add(trimmed)
+        gNoise.historyAdd(trimmed)
+      continue
+
     let parsed = parseLine(trimmed)
     let expanded = expandLine(parsed, state.vars)
 
@@ -110,6 +119,9 @@ proc printUsage() =
   echo "  config deny add      <cmd>  Add command to deny list"
   echo "  config deny remove   <cmd>  Remove command from deny list"
   echo "  complete <word>      Generate shell completions"
+  echo "  llm <provider>       Store an LLM provider (address, key, model)"
+  echo "  llm list             List configured LLM providers"
+  echo "  llm use <provider>   Set the default LLM provider"
   echo "  help                 Show this help"
   echo ""
   echo "Run without arguments to enter the REPL shell."
@@ -201,6 +213,23 @@ proc dispatchCli(args: seq[string]) =
       doComplete(args[1])
     else:
       stderr.writeLine "usage: krantz complete <word>"
+      quit(1)
+  of "llm":
+    if args.len >= 2 and args[1] == "list":
+      listProvidersCli()
+    elif args.len >= 3 and args[1] == "use":
+      useProviderCli(args[2])
+    elif args.len == 2:
+      let store = openLLMStore()
+      let name = args[1]
+      let address = readValue("provider address: ")
+      let key = readSecret("api key: ")
+      let model = readValue("model id: ")
+      saveProvider(store, name, address, key, model)
+      store.checkpoint()
+      echo "stored LLM provider: ", name
+    else:
+      stderr.writeLine "usage: krantz llm [<provider>|list|use <provider>]"
       quit(1)
   else:
     stderr.writeLine "krantz: unknown command: ", args[0]

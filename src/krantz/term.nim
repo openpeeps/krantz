@@ -49,9 +49,7 @@ proc isTerminal*(fd: cint): bool =
 
 var gNoise*: Noise
 
-proc completeCallback(self: var Noise, text: string): int =
-  if text.len == 0: return 0
-
+proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
   let expanded = text.expandTilde()
 
   # Phase 2: text ends with "/" → list directory contents
@@ -62,17 +60,19 @@ proc completeCallback(self: var Noise, text: string): int =
         let entry = path.extractFilename()
         if kind in {pcDir, pcLinkToDir}:
           self.addCompletion(text / entry & "/")
-        else:
+          inc count
+        elif not dirsOnly:
           self.addCompletion(text / entry)
-        inc count
+          inc count
     except OSError:
       discard
     return count
 
   # Phase 1: text matches an exact directory → add / and siblings
   if dirExists(expanded):
-    var count = 1
+    var count = 0
     self.addCompletion(text & "/")
+    inc count
     let parent = text.parentDir()
     let basename = text.extractFilename()
     let absParent = if parent.len > 0: parent.expandTilde() else: "."
@@ -84,9 +84,10 @@ proc completeCallback(self: var Noise, text: string): int =
           let completion = if parent.len > 0: parent / name else: name
           if kind in {pcDir, pcLinkToDir}:
             self.addCompletion(completion & "/")
-          else:
+            inc count
+          elif not dirsOnly:
             self.addCompletion(completion)
-          inc count
+            inc count
     except OSError:
       discard
     return count
@@ -107,7 +108,7 @@ proc completeCallback(self: var Noise, text: string): int =
         let completion = if dir != ".": dir / name else: name
         if kind in {pcDir, pcLinkToDir}:
           candidates.add(completion & "/")
-        else:
+        elif not dirsOnly:
           candidates.add(completion)
   except OSError:
     discard
@@ -116,6 +117,21 @@ proc completeCallback(self: var Noise, text: string): int =
     for c in candidates:
       self.addCompletion(c)
   result = candidates.len
+
+proc completeCallback(self: var Noise, text: string): int =
+  let fullLine = self.getLine()
+  let stripped = fullLine.strip()
+  let sp = stripped.find(' ')
+  let firstWord = if sp > 0: stripped[0..<sp] else: stripped
+  let cdArg = firstWord == "cd" and text != firstWord
+
+  self.setCompletionListMode(false)
+  if text.len == 0 and not cdArg:
+    return 0
+
+  result = self.addCandidates(text, dirsOnly = cdArg)
+  if cdArg and result > 1:
+    self.setCompletionListMode(true)
 
 proc resetTerminalModes*() =
   stdout.write("\e[?1000l\e[?1002l\e[?1003l\e[?1006l")

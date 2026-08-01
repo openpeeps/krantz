@@ -322,6 +322,10 @@ when promptCompletion:
   proc breakWord(self: var Line): tuple[head, word, tail: string] =
     var startIndex = self.pos
     if startIndex == self.dataLen:
+      # cursor at end of line; if the preceding char is a break, the
+      # current word is empty (e.g. "cd " → complete a new argument)
+      if self.dataLen > 0 and not self.validChar(self.dataLen - 1):
+        return (utf32to8(self.toOpenArray(0, self.dataLen)), "", "")
       dec startIndex
 
     if not self.validChar(startIndex):

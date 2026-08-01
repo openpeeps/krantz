@@ -255,7 +255,9 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
         if cmdName.find('/') >= 0 or cmdName.endsWith('/'):
           try:
             state.prevDir = getCurrentDir()
+            putEnv("OLDPWD", state.prevDir)
             setCurrentDir(cmdName)
+            putEnv("PWD", getCurrentDir())
             result = 0; state.lastExitCode = 0; continue
           except OSError:
             discard
@@ -263,15 +265,21 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
           if firstCmd.args.len == 1:
             let home = getHomeDir()
             state.prevDir = getCurrentDir()
+            putEnv("OLDPWD", state.prevDir)
             setCurrentDir(home)
+            putEnv("PWD", home)
           elif firstCmd.args[1] == "-":
             let tmp = getCurrentDir()
+            putEnv("OLDPWD", tmp)
             setCurrentDir(state.prevDir)
             state.prevDir = tmp
+            putEnv("PWD", getCurrentDir())
           else:
             state.prevDir = getCurrentDir()
+            putEnv("OLDPWD", state.prevDir)
             try:
               setCurrentDir(firstCmd.args[1])
+              putEnv("PWD", getCurrentDir())
             except OSError:
               stderr.writeLine("krantz: cd: " & firstCmd.args[1] & ": No such file or directory")
               result = 1
@@ -311,7 +319,9 @@ proc executeParsedLine*(parsed: ParsedLine, state: var ShellState): int =
       if cmdName.find('/') < 0 and not cmdName.endsWith('/') and firstCmd.args.len == 1:
         try:
           state.prevDir = getCurrentDir()
+          putEnv("OLDPWD", state.prevDir)
           setCurrentDir(cmdName)
+          putEnv("PWD", getCurrentDir())
           result = 0; state.lastExitCode = 0; continue
         except OSError:
           discard

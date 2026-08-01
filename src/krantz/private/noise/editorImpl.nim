@@ -7,37 +7,77 @@
 #
 
 when promptCompletion:
+  proc utf8Width(s: string): int =
+    result = mk_wcswidth(utf8to32(s))
+    if result < 0: result = s.len
+
+  proc printCompletionColumns(items: seq[string], screenWidth: int): int =
+    if items.len == 0: return 0
+    var maxWidth = 0
+    var widths = newSeq[int](items.len)
+    for i in 0..<items.len:
+      widths[i] = utf8Width(items[i])
+      if widths[i] > maxWidth: maxWidth = widths[i]
+    let termWidth = if screenWidth > 0: screenWidth else: 80
+    let colWidth = maxWidth + 2
+    var numCols = max(1, termWidth div colWidth)
+    if numCols > items.len: numCols = items.len
+    let numRows = (items.len + numCols - 1) div numCols
+    for r in 0..<numRows:
+      var line = ""
+      for c in 0..<numCols:
+        let idx = c * numRows + r
+        if idx >= items.len: break
+        line.add(items[idx])
+        if c < numCols - 1:
+          line.add(repeat(' ', max(0, colWidth - widths[idx])))
+      stdout.write(line & "\n")
+    result = numRows
+
   proc completeLine(self: var Noise): char32 =
     let line = self.line.getLine()
     let parts = self.line.breakWord()
-    if parts.word.len == 0: return 0
+    if parts.word.len == 0 and parts.head.len == 0: return 0
 
     discard self.completionHook(self, parts.word)
     if self.completionStrings.len == 0: return 0
 
-    var index = 0
-    self.line.updateCompletion(parts.head &
-      self.completionStrings[index] & parts.tail)
+    if self.completionStrings.len == 1 or not self.completionShowList:
+      var index = 0
+      self.line.updateCompletion(parts.head &
+        self.completionStrings[index] & parts.tail)
 
-    while true:
-      var c = readChar()
-      c = c.cleanupCtrl
-      case c
-      of ctrlChar('I'):
-        inc index
-        if index >= self.completionStrings.len:
-          index = 0
-        self.line.updateCompletion(parts.head &
-          self.completionStrings[index] & parts.tail)
-      of ESC_KEY, ctrlChar('C'):
-        self.line.updateCompletion(line)
-        result = 0
-        break
-      else:
-        result = c
-        break
+      while true:
+        var c = readChar()
+        c = c.cleanupCtrl
+        case c
+        of ctrlChar('I'):
+          inc index
+          if index >= self.completionStrings.len:
+            index = 0
+          self.line.updateCompletion(parts.head &
+            self.completionStrings[index] & parts.tail)
+        of ESC_KEY, ctrlChar('C'):
+          self.line.updateCompletion(line)
+          result = 0
+          break
+        else:
+          result = c
+          break
 
+      self.completionStrings.setLen(0)
+      return
+
+    # list mode: multiple candidates → print the list and redraw below it
+    stdout.write("\n")
+    discard printCompletionColumns(self.completionStrings, self.screenWidth)
+    stdout.flushFile()
+    self.completionShowList = false
     self.completionStrings.setLen(0)
+    self.line.prompt.show()
+    self.line.prompt.genNewLine()
+    self.line.refreshLine
+    result = 0
 
   proc lineCompletion(self: var Noise, c: char32): EditMode {.cdecl.} =
     result = editNext
