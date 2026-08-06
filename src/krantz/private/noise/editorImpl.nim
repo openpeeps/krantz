@@ -7,8 +7,15 @@
 #
 
 when promptCompletion:
+  proc escapeCompletion(candidate: string): string =
+    for c in candidate:
+      if c in {' ', '\t', '|', ';', '&', '>', '<', '#', '\'', '"', '\\',
+               '$', '`', '(', ')', '*', '?', '[', ']', '{', '}', '!'}:
+        result.add('\\')
+      result.add(c)
+
   proc completionText(head, tail, candidate: string): string =
-    result = head & candidate & tail
+    result = head & escapeCompletion(candidate) & tail
     if head.len > 0 and tail.len == 0 and not candidate.endsWith("/"):
       result &= " "
 

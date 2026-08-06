@@ -165,24 +165,35 @@ proc commandCandidates(prefix: string): seq[string] =
         result.add name
   sort(result, cmpIgnoreCase)
 
+proc unescapeWord(word: string): string =
+  var i = 0
+  while i < word.len:
+    if word[i] == '\\' and i + 1 < word.len:
+      inc i
+      result.add(word[i])
+    else:
+      result.add(word[i])
+    inc i
+
 proc completeCallback(self: var Noise, text: string): int =
   let fullLine = self.getLine()
   let words = fullLine.splitWhitespace()
   let firstWord = if words.len > 0: words[0] else: ""
   let isFirstWord = fullLine.find(' ') < 0
   let cdArg = firstWord == "cd" and not isFirstWord
+  let word = text.unescapeWord()
 
   if isFirstWord:
-    if text.len == 0: return 0
-    if text.contains("/"):
-      result = self.addCandidates(text, dirsOnly = false)
+    if word.len == 0: return 0
+    if word.contains("/"):
+      result = self.addCandidates(word, dirsOnly = false)
     else:
-      let cmds = commandCandidates(text)
+      let cmds = commandCandidates(word)
       for name in cmds:
         self.addCompletion(name)
       result = cmds.len
   else:
-    result = self.addCandidates(text, dirsOnly = cdArg)
+    result = self.addCandidates(word, dirsOnly = cdArg)
 
 proc resetTerminalModes*() =
   stdout.write("\e[?1000l\e[?1002l\e[?1003l\e[?1006l")

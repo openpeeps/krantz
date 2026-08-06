@@ -317,7 +317,13 @@ when promptCompletion:
     if index < 0 or index > self.data.len:
       return false
     let c = self.data[index]
-    result = (c <= 0x7F) and (c.chr notin breakChars)
+    if c > 0x7F: return false
+    let ch = c.chr
+    if ch == '\\':
+      return true # escape marker stays in the word
+    if ch == ' ' and index > 0 and self.data[index - 1] == '\\'.ord:
+      return true # escaped space is part of the word
+    result = (ch notin breakChars)
 
   proc breakWord(self: var Line): tuple[head, word, tail: string] =
     var startIndex = self.pos
