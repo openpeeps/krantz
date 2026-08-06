@@ -21,18 +21,30 @@ proc runShell() =
     prevDir: "",
     vars: newTable[string, string]()
   )
-  openHistoryStore(state)
-  var historyList = loadAllHistory(state)
+  var historyList: seq[string] = @[]
 
   let interactive = isTerminal(0)
+
+  proc ensureHistory() =
+    # History is read once from the store into the in-memory (noise) history so
+    # Up/Down navigation can walk it in place. Only opened on first use, keeping
+    # non-interactive runs lazy.
+    if not state.historyLoaded:
+      if state.store.isNil:
+        openHistoryStore(state)
+      historyList = loadAllHistory(state)
+      if interactive:
+        for h in historyList:
+          gNoise.historyAdd(h)
+      state.historyLoaded = true
+
   if interactive:
     initTerminal()
     let profilePath = os.getHomeDir() / ".profile"
     if os.fileExists(profilePath):
       discard sourceFile(profilePath)
     emitCurrentDir(getCurrentDir())
-    for h in historyList:
-      gNoise.historyAdd(h)
+    ensureHistory()
 
   while not state.shouldExit:
     let cwd = getCurrentDir()
@@ -77,6 +89,7 @@ proc runShell() =
 
     if isChatCommand(trimmed):
       state.lastExitCode = handleChatCommand(trimmed)
+      ensureHistory()
       if historyList.len == 0 or historyList[^1] != trimmed:
         addHistory(state, trimmed)
         historyList.add(trimmed)
@@ -103,6 +116,7 @@ proc runShell() =
       state.lastExitCode = executeParsedLine(expanded, state)
       let cmdName = trimmed.split()[0]
       if cmdName != "history" and cmdName != "exit":
+        ensureHistory()
         if historyList.len == 0 or historyList[^1] != trimmed:
           addHistory(state, trimmed)
           historyList.add(trimmed)

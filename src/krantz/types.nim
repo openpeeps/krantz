@@ -105,6 +105,7 @@ type
     config*: KrantzConfig
     policy*: PolicyEngine
     store*: Store
+    historyLoaded*: bool
     lastExitCode*: int
     shouldExit*: bool
     prevDir*: string

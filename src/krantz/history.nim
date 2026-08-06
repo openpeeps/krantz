@@ -10,6 +10,7 @@ import boogie/stores/rdbms
 import ./types
 
 proc openHistoryStore*(state: var ShellState) =
+  if not state.store.isNil: return
   let histPath = getHomeDir() / ".krantz" / "history"
   createDir(getHomeDir() / ".krantz")
   let store = newStore(histPath, smDisk, enableWal = true,
@@ -23,7 +24,14 @@ proc openHistoryStore*(state: var ShellState) =
   store.createTableIfNotExist(tbl)
   state.store = store
 
+proc ensureHistoryStore*(state: var ShellState) =
+  ## Opens the history store on first use, so a fresh instance doesn't pay
+  ## the store/WAL load cost until history is actually needed.
+  if state.store.isNil:
+    openHistoryStore(state)
+
 proc addHistory*(state: var ShellState, cmd: string) =
+  ensureHistoryStore(state)
   let maxSize = if state.config.history.maxSize > 0: state.config.history.maxSize else: 1000
   discard state.store.insertRow("history", row({
     "cmd": newTextValue(cmd),
@@ -44,7 +52,8 @@ proc loadAllHistory*(state: ShellState): seq[string] =
   for pk, row in tbl.allRows():
     result.add(row["cmd"].strVal)
 
-proc getHistory*(state: ShellState, n: int = 20): seq[(string, string, int64)] =
+proc getHistory*(state: var ShellState, n: int = 20): seq[(string, string, int64)] =
+  ensureHistoryStore(state)
   let tbl = state.store.getTable("history").get()
   var entries: seq[(string, string, int64)]
   for pk, row in tbl.allRows():

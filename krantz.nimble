@@ -5,10 +5,10 @@ license       = "MIT"
 srcDir        = "src"
 bin           = @["krantz"]
 
-requires "nim >= 2.2.0"
+requires "nim >= 2.2.10"
 requires "openparser >= 0.1.6"
 requires "boogie >= 0.1.0"
-requires "chachachat"
+requires "chachachat >= 0.1.0"
 
 task test, "Run the interactive pty test suite":
   exec "nim r tests/test.nim"

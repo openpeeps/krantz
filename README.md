@@ -78,6 +78,9 @@ prompt:
 ## Line Editing
 
 Emacs keybindings, history search (Ctrl-R), kill/yank ring, incremental search, three-phase file path completion (case-insensitive on macOS).
+```
+[3/3]'git clone '> git clone git@github.com:openpeeps/zaiku.git
+```
 
 ## Expansion
 

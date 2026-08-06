@@ -83,14 +83,14 @@ proc get*(self: var History): string =
     result = ""
 
 proc moveUp*(self: var History) =
-  if self.available():
+  # clamp at the oldest entry (zsh-style) instead of wrapping to the newest
+  if self.available() and self.index > 0:
     dec self.index
-    if self.index < 0: self.index = self.data.len - 1
 
 proc moveDown*(self: var History) =
-  if self.available():
+  # clamp at the newest/current line (zsh-style) instead of wrapping to the oldest
+  if self.available() and self.index < self.data.len - 1:
     inc self.index
-    if self.index >= self.data.len: self.index = 0
 
 proc moveTop*(self: var History) =
   if self.available():

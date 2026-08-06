@@ -236,7 +236,6 @@ proc initTerminal*() =
   gNoise = Noise.init()
   gNoise.setCompletionHook(completeCallback)
   gNoise.historySetMaxLen(1000)
-  buildCommandCache()
   noiseio.installShutdownHandler()
   resetTerminalModes()
 
