@@ -32,6 +32,49 @@
 ## Install
 You need nim. Once built add it to your `/etc/shells`, then in Terminal app add the absolute path
 
+## Examples
+
+Run without arguments to enter the REPL shell:
+
+```console
+$ krantz -h
+Usage: krantz [command]
+
+Commands:
+  config               Show current configuration
+  config init          Create default config file
+  config show          Show current configuration
+  config deny list     List denied commands
+  config deny add      <cmd>  Add command to deny list
+  config deny remove   <cmd>  Remove command from deny list
+  complete <word>      Generate shell completions
+  llm <provider>       Store an LLM provider (address, key, model)
+  llm list             List configured LLM providers
+  llm use <provider>   Set the default LLM provider
+  help                 Show this help
+
+Run without arguments to enter the REPL shell.
+```
+
+### Krantz Config
+
+Configuration lives at `~/.krantz/config.yaml`. First-time initialization automatically creates the config file under `~/.krantz/` with a default policy that denies dangerous commands:
+
+```yaml
+policy:
+  deny:
+    - rm
+
+history:
+  maxSize: 1000
+
+prompt:
+  user: false       # show username in the cmd line
+  host: false       # show hostname in the cmd line
+  git: true         # enable git branch status
+  cwdShort: false  
+```
+
 ## Line Editing
 
 Emacs keybindings, history search (Ctrl-R), kill/yank ring, incremental search, three-phase file path completion (case-insensitive on macOS).
@@ -76,49 +119,6 @@ Redirections compose with pipes (a `2>` inside a pipeline applies to that comman
 
 - Here-documents (`<<EOF`) — the tokenizer only handles `<` and `<&`; `<<` isn't a token, so it won't work
 - `<>` read-write, and process substitution (`<(…)`)
-
-## Examples
-
-Run without arguments to enter the REPL shell:
-
-```console
-$ krantz -h
-Usage: krantz [command]
-
-Commands:
-  config               Show current configuration
-  config init          Create default config file
-  config show          Show current configuration
-  config deny list     List denied commands
-  config deny add      <cmd>  Add command to deny list
-  config deny remove   <cmd>  Remove command from deny list
-  complete <word>      Generate shell completions
-  llm <provider>       Store an LLM provider (address, key, model)
-  llm list             List configured LLM providers
-  llm use <provider>   Set the default LLM provider
-  help                 Show this help
-
-Run without arguments to enter the REPL shell.
-```
-
-### Krantz Config
-
-Configuration lives at `~/.krantz/config.yaml`. First-time initialization automatically creates the config file under `~/.krantz/` with a default policy that denies dangerous commands:
-
-```yaml
-policy:
-  deny:
-    - rm
-
-history:
-  maxSize: 1000
-
-prompt:
-  user: false       # show username in the cmd line
-  host: false       # show hostname in the cmd line
-  git: true         # enable git branch status
-  cwdShort: false  
-```
 
 ### 🗺 Roadmap
 
