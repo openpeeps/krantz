@@ -46,8 +46,60 @@ OSC 7 cwd emission for same-directory new tabs. Graceful SIGHUP/SIGTERM shutdown
 
 Child processes receive proper process-group membership (`setpgid`) and terminal foreground ownership (`tcsetpgrp`) via blocked `SIGTTOU`/`SIGTTIN`, matching the POSIX job-control model. After a foreground child exits, the terminal is reclaimed and input-affecting modes (mouse tracking, focus events, bracketed paste) are reset without disturbing the child's visible output. Stale stdin is drained before each child runs.
 
+## Pipes & Redirection
+
+Here's what krantz actually does for pipes and redirection, straight from the parser (`parser.nim`) and executor (`executor.nim`):
+
+### Pipes
+
+- True OS pipes: each `|` becomes a `posix.pipe()` + `fork()` + `dup2()`, so `cmd1 | cmd2 | cmd3` works across any number of commands, each command's stdout feeding the next one's stdin (`executor.nim:72-103`).
+- Each pipeline runs as its own process group (`setpgid`, `tcsetpgrp`, blocked `SIGTTOU`/`SIGTTIN`) — proper POSIX job-control semantics, not just a chain of subprocesses (`executor.nim:163-177`).
+- Combined with the separators: `&&`, `||`, `;`, and trailing `&` (background) — handled in `executeParsedLine` (`executor.nim:210-218`).
+
+### Redirection
+
+The parser tokenizes these forms (`parser.nim:56-90,146-214`), the executor applies them in the child via `dup2`/`open` (`executor.nim:109-138`):
+
+```console
+cmd > file       # stdout → file (truncate)
+cmd >> file      # stdout → file (append)
+cmd < file       # stdin  ← file
+cmd 2> file      # numbered fd → file (stderr)
+cmd 2>&1         # fd duplication (stderr → stdout)
+cmd 1>&-         # close a file descriptor
+cmd &> file      # stdout and stderr → same file
+```
+
+Redirections compose with pipes (a `2>` inside a pipeline applies to that command).
+
+### What's not supported
+
+- Here-documents (`<<EOF`) — the tokenizer only handles `<` and `<&`; `<<` isn't a token, so it won't work
+- `<>` read-write, and process substitution (`<(…)`)
+
 ## Examples
-...
+
+Run without arguments to enter the REPL shell:
+
+```console
+$ krantz -h
+Usage: krantz [command]
+
+Commands:
+  config               Show current configuration
+  config init          Create default config file
+  config show          Show current configuration
+  config deny list     List denied commands
+  config deny add      <cmd>  Add command to deny list
+  config deny remove   <cmd>  Remove command from deny list
+  complete <word>      Generate shell completions
+  llm <provider>       Store an LLM provider (address, key, model)
+  llm list             List configured LLM providers
+  llm use <provider>   Set the default LLM provider
+  help                 Show this help
+
+Run without arguments to enter the REPL shell.
+```
 
 ### Krantz Config
 
