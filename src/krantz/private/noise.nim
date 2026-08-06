@@ -52,7 +52,6 @@ when promptBasic:
       when promptCompletion:
         completionHook: CompletionHook
         completionStrings: seq[string]
-        completionShowList: bool
       when promptPreloadBuffer:
         preloadText: string
         preloadError: string
@@ -251,9 +250,6 @@ when promptCompletion:
 
   proc addCompletion*(self: var Noise, text: string) =
     self.completionStrings.add text
-
-  proc setCompletionListMode*(self: var Noise, on: bool) =
-    self.completionShowList = on
 
 when promptPreloadBuffer:
   #  preloadBuffer provides text to be inserted into the command buffer.

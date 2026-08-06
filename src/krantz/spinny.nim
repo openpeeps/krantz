@@ -35,7 +35,7 @@ type
 var spinnyThread: Thread[Spinny]
 var spinnyChannel: Channel[SpinnyEvent]
 
-proc fgGreen(s: string): string = "\e[32m" & s & "\e[0m"
+proc fgCyan(s: string): string = "\e[36m" & s & "\e[0m"
 proc fgRed(s: string): string = "\e[31m" & s & "\e[0m"
 proc bold(s: string): string = "\e[1m" & s & "\e[0m"
 
@@ -67,12 +67,12 @@ proc handleEvent(spinny: Spinny, eventData: SpinnyEvent): bool =
     spinny.text = eventData.payload
   of StopSuccess:
     spinny.customSymbol = true
-    spinny.frame = "✨".bold.fgGreen
-    spinny.text = eventData.payload.bold.fgGreen
+    spinny.frame = "✨".bold.fgCyan
+    spinny.text = eventData.payload.fgCyan
   of StopError:
     spinny.customSymbol = true
     spinny.frame = "✖".bold.fgRed
-    spinny.text = eventData.payload.bold.fgRed
+    spinny.text = eventData.payload
 
 proc timeDiff(d: Duration): string =
   result = $int(d.inSeconds()) & "sec"

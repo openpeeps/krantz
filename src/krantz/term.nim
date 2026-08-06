@@ -4,7 +4,7 @@
 #          Made by Humans from OpenPeeps
 #          https://github.com/georgelemon/krantz
 
-import std/[algorithm, os, posix, strutils, terminal, termios]
+import std/[algorithm, os, posix, sets, strutils, terminal, termios]
 import ./private/noise
 import ./private/noise/posixio as noiseio
 
@@ -49,6 +49,11 @@ proc isTerminal*(fd: cint): bool =
 
 var gNoise*: Noise
 
+const X_OK = 1.cint
+
+proc hiddenFor(prefix: string, name: string): bool =
+  name.len > 0 and name[0] == '.' and (prefix.len == 0 or prefix[0] != '.')
+
 proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
   let expanded = text.expandTilde()
 
@@ -58,6 +63,7 @@ proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
     try:
       for kind, path in walkDir(expanded):
         let entry = path.extractFilename()
+        if hiddenFor("", entry): continue
         if kind in {pcDir, pcLinkToDir}:
           self.addCompletion(text / entry & "/")
           inc count
@@ -79,6 +85,7 @@ proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
     try:
       for kind, path in walkDir(absParent):
         let name = path.extractFilename()
+        if hiddenFor(basename, name): continue
         if name.toLowerAscii() == basename.toLowerAscii(): continue
         if name.len >= basename.len and name.toLowerAscii()[0..<basename.len] == basename.toLowerAscii():
           let completion = if parent.len > 0: parent / name else: name
@@ -104,6 +111,7 @@ proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
   try:
     for kind, path in walkDir(absDir):
       let name = path.extractFilename()
+      if hiddenFor(prefix, name): continue
       if name.len >= prefix.len and name.toLowerAscii()[0..<prefix.len] == prefix.toLowerAscii():
         let completion = if dir != ".": dir / name else: name
         if kind in {pcDir, pcLinkToDir}:
@@ -118,20 +126,63 @@ proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
       self.addCompletion(c)
   result = candidates.len
 
+const shellBuiltins = [
+  "alias", "bg", "cd", "clear", "echo", "env", "exit", "export", "fg",
+  "history", "jobs", "kill", "logout", "pwd", "source", "unset", "wait"
+]
+
+var gCommandCache = ""
+var gCommandNames: seq[string]
+
+proc buildCommandCache() =
+  let path = getEnv("PATH")
+  if gCommandCache == path: return
+  gCommandCache = path
+  gCommandNames.setLen(0)
+  var seen = initHashSet[string]()
+  for dir in path.split(PathSep):
+    if dir.len == 0: continue
+    try:
+      for kind, file in walkDir(dir):
+        if kind notin {pcFile, pcLinkToFile}: continue
+        let name = file.extractFilename()
+        if name.len == 0 or name[0] == '.': continue
+        if posix.access(file.cstring, X_OK) != 0: continue
+        if seen.containsOrIncl(name): continue
+        gCommandNames.add name
+    except OSError:
+      discard
+
+proc commandCandidates(prefix: string): seq[string] =
+  buildCommandCache()
+  let lower = prefix.toLowerAscii()
+  for b in shellBuiltins:
+    if b.len >= prefix.len and b.toLowerAscii()[0..<prefix.len] == lower:
+      result.add b
+  for name in gCommandNames:
+    if name.len >= prefix.len and name.toLowerAscii()[0..<prefix.len] == lower:
+      if result.find(name) < 0:
+        result.add name
+  sort(result, cmpIgnoreCase)
+
 proc completeCallback(self: var Noise, text: string): int =
   let fullLine = self.getLine()
-  let stripped = fullLine.strip()
-  let sp = stripped.find(' ')
-  let firstWord = if sp > 0: stripped[0..<sp] else: stripped
-  let cdArg = firstWord == "cd" and text != firstWord
+  let words = fullLine.splitWhitespace()
+  let firstWord = if words.len > 0: words[0] else: ""
+  let isFirstWord = fullLine.find(' ') < 0
+  let cdArg = firstWord == "cd" and not isFirstWord
 
-  self.setCompletionListMode(false)
-  if text.len == 0 and not cdArg:
-    return 0
-
-  result = self.addCandidates(text, dirsOnly = cdArg)
-  if cdArg and result > 1:
-    self.setCompletionListMode(true)
+  if isFirstWord:
+    if text.len == 0: return 0
+    if text.contains("/"):
+      result = self.addCandidates(text, dirsOnly = false)
+    else:
+      let cmds = commandCandidates(text)
+      for name in cmds:
+        self.addCompletion(name)
+      result = cmds.len
+  else:
+    result = self.addCandidates(text, dirsOnly = cdArg)
 
 proc resetTerminalModes*() =
   stdout.write("\e[?1000l\e[?1002l\e[?1003l\e[?1006l")
@@ -174,6 +225,7 @@ proc initTerminal*() =
   gNoise = Noise.init()
   gNoise.setCompletionHook(completeCallback)
   gNoise.historySetMaxLen(1000)
+  buildCommandCache()
   noiseio.installShutdownHandler()
   resetTerminalModes()
 

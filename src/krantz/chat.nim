@@ -77,8 +77,8 @@ proc chatQuery*(line: string): string =
 
 proc chatMessages(query: string): seq[UserMessage] =
   result = @[
-    (role: UserMessageRole.system, content: systemPromptText()),
-    (role: UserMessageRole.user, content: query)
+    UserMessage(role: UserMessageRole.system, content: systemPromptText()),
+    UserMessage(role: UserMessageRole.user, content: query)
   ]
 
 proc chatRequest(query: string): Future[string] {.async.} =
@@ -96,7 +96,10 @@ proc chatRequest(query: string): Future[string] {.async.} =
   try:
     let response = await client.chat(chatMessages(query), defaultOpts,
       proc(chunk: ResponseChunk) = discard)
-    result = response.chunks.mapIt(it.text).join("").strip()
+    result = response.chunks
+      .filterIt(it.chunkType == chunkContent)
+      .mapIt(it.text)
+      .join("").strip()
   except CatchableError as e:
     result = "error: " & e.msg
 
