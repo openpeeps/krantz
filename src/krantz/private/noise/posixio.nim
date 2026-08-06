@@ -328,14 +328,33 @@ proc escLBracket8Proc(ctx: var EscapeCtx, c: char32): char32 =
 proc escLBracket9Proc(ctx: var EscapeCtx, c: char32): char32 =
   ctx.escFailureProc(c)
 
+# Handle ESC [ M <b> <x> <y> (X10 mouse) — consumed and ignored
+proc x10mouseProc(ctx: var EscapeCtx, c: char32): char32 =
+  for _ in 0..<3:
+    if ctx.readChar() == 0:
+      return 0
+  return 0
+
+# Handle ESC [ < b ; x ; y M|m (SGR mouse) — consumed and ignored
+proc sgrmouseProc(ctx: var EscapeCtx, c: char32): char32 =
+  var cur = c
+  while true:
+    cur = ctx.readChar()
+    if cur == 0:
+      return 0
+    if cur == 'M'.ord or cur == 'm'.ord:
+      return 0
+    if cur >= 0x40 and cur <= 0x7E:
+      return 0 # unexpected final byte; swallow and ignore
+
 # Handle ESC [ <more stuff> escape sequences
-let escLBracketDispatch = ("ABCDHF0123456789", [
+let escLBracketDispatch = ("ABCDHF0123456789<M", [
   upArrowKeyProc.DispatchProc, downArrowKeyProc,
   rightArrowKeyProc, leftArrowKeyProc, homeKeyProc, endKeyProc,
   escLBracket0Proc, escLBracket1Proc, escLBracket2Proc,
   escLBracket3Proc, escLBracket4Proc, escLBracket5Proc,
   escLBracket6Proc, escLBracket7Proc, escLBracket8Proc,
-  escLBracket9Proc, escFailureProc])
+  escLBracket9Proc, sgrmouseProc, x10mouseProc, escFailureProc])
 
 # Handle ESC O <char> escape sequences
 let escODispatch = ("ABCDHFabcd", [

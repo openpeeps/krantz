@@ -196,7 +196,10 @@ proc completeCallback(self: var Noise, text: string): int =
     result = self.addCandidates(word, dirsOnly = cdArg)
 
 proc resetTerminalModes*() =
-  stdout.write("\e[?1000l\e[?1002l\e[?1003l\e[?1006l")
+  # NOTE: do not disable mouse tracking (1000/1002/1003/1006) here — that mode
+  # is terminal-global and disabling it breaks apps krantz runs inside of
+  # (e.g. an embedded terminal in a TUI). Leftover mouse events are ignored
+  # by the input layer instead.
   stdout.write("\e[?1004l\e[?2004l\e[?25h\e[?7h")
   stdout.flushFile()
 
