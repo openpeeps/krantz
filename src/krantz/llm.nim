@@ -14,25 +14,41 @@ proc llmStorePath*(): string =
 
 proc openLLMStore*(): Store =
   createDir(configDir())
-  let store = newStore(llmStorePath(), smDisk, enableWal = true,
-                       checkpointEveryOps = 500'u32,
-                       walFlushEveryOps = 1'u32)
-  let tbl = newTable("providers", "id",
-    columns = [newColumn("id", dtInt, false),
-               newColumn("name", dtText, false),
-               newColumn("address", dtText, false),
-               newColumn("key", dtText, false),
-               newColumn("model", dtText, false),
-               newColumn("ts", dtInt, false)],
-    primaryKeyMode = pkmSerial)
-  store.createTableIfNotExist(tbl)
-  let settings = newTable("settings", "id",
-    columns = [newColumn("id", dtInt, false),
-               newColumn("key", dtText, false),
-               newColumn("value", dtText, false)],
-    primaryKeyMode = pkmSerial)
-  store.createTableIfNotExist(settings)
-  result = store
+  template openOnce() =
+    let store = newStore(llmStorePath(), smDisk, enableWal = true,
+                         checkpointEveryOps = 500'u32,
+                         walFlushEveryOps = 1'u32)
+    let tbl = newTable("providers", "id",
+      columns = [newColumn("id", dtInt, false),
+                 newColumn("name", dtText, false),
+                 newColumn("address", dtText, false),
+                 newColumn("key", dtText, false),
+                 newColumn("model", dtText, false),
+                 newColumn("ts", dtInt, false)],
+      primaryKeyMode = pkmSerial)
+    store.createTableIfNotExist(tbl)
+    let settings = newTable("settings", "id",
+      columns = [newColumn("id", dtInt, false),
+                 newColumn("key", dtText, false),
+                 newColumn("value", dtText, false)],
+      primaryKeyMode = pkmSerial)
+    store.createTableIfNotExist(settings)
+    result = store
+  try:
+    openOnce()
+  except CatchableError as e:
+    # e.g. the WAL/snapshot was written by an incompatible boogie version
+    stderr.writeLine("krantz: LLM store unavailable (", e.msg, ") — recreating")
+    for ext in [".wal", ".db"]:
+      let f = llmStorePath().changeFileExt(ext)
+      if fileExists(f):
+        try: removeFile(f)
+        except OSError: discard
+    try:
+      openOnce()
+    except CatchableError as e2:
+      stderr.writeLine("krantz: LLM store still unavailable (", e2.msg, ")")
+      result = nil
 
 const defaultProviderKey = "default_provider"
 
@@ -129,6 +145,9 @@ proc readSecret*(prompt: string): string =
 
 proc listProvidersCli*() =
   let store = openLLMStore()
+  if store.isNil:
+    stderr.writeLine "krantz: LLM store unavailable"
+    quit(1)
   let defaultName = getDefaultProvider(store)
   let providers = listProviders(store)
   if providers.len == 0:
@@ -143,6 +162,9 @@ proc listProvidersCli*() =
 
 proc useProviderCli*(name: string) =
   let store = openLLMStore()
+  if store.isNil:
+    stderr.writeLine "krantz: LLM store unavailable"
+    quit(1)
   if not setDefaultProvider(store, name):
     stderr.writeLine "krantz: provider not found: ", name
     quit(1)

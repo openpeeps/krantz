@@ -6,8 +6,8 @@ srcDir        = "src"
 bin           = @["krantz"]
 
 requires "nim >= 2.2.10"
-requires "openparser >= 0.1.6"
-requires "boogie >= 0.1.0"
+requires "openparser >= 0.1.8"
+requires "boogie >= 0.1.1"
 requires "chachachat >= 0.1.0"
 
 task test, "Run the interactive pty test suite":

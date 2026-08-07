@@ -13,16 +13,32 @@ proc openHistoryStore*(state: var ShellState) =
   if not state.store.isNil: return
   let histPath = getHomeDir() / ".krantz" / "history"
   createDir(getHomeDir() / ".krantz")
-  let store = newStore(histPath, smDisk, enableWal = true,
-                       checkpointEveryOps = 500'u32,
-                       walFlushEveryOps = 1'u32)
-  let tbl = newTable("history", "id",
-    columns = [newColumn("id", dtInt, false),
-               newColumn("cmd", dtText, false),
-               newColumn("ts", dtInt, false)],
-    primaryKeyMode = pkmSerial)
-  store.createTableIfNotExist(tbl)
-  state.store = store
+  template openOnce() =
+    let store = newStore(histPath, smDisk, enableWal = true,
+                         checkpointEveryOps = 500'u32,
+                         walFlushEveryOps = 1'u32)
+    let tbl = newTable("history", "id",
+      columns = [newColumn("id", dtInt, false),
+                 newColumn("cmd", dtText, false),
+                 newColumn("ts", dtInt, false)],
+      primaryKeyMode = pkmSerial)
+    store.createTableIfNotExist(tbl)
+    state.store = store
+  try:
+    openOnce()
+  except CatchableError as e:
+    # e.g. the WAL/snapshot was written by an incompatible boogie version
+    stderr.writeLine("krantz: history store unavailable (", e.msg, ") — recreating")
+    for ext in [".wal", ".db"]:
+      let f = histPath.changeFileExt(ext)
+      if fileExists(f):
+        try: removeFile(f)
+        except OSError: discard
+    try:
+      openOnce()
+    except CatchableError as e2:
+      stderr.writeLine("krantz: history store still unavailable (", e2.msg, ") — continuing without history")
+      state.store = nil
 
 proc ensureHistoryStore*(state: var ShellState) =
   ## Opens the history store on first use, so a fresh instance doesn't pay

@@ -83,6 +83,8 @@ proc chatMessages(query: string): seq[UserMessage] =
 
 proc chatRequest(query: string): Future[string] {.async.} =
   let store = openLLMStore()
+  if store.isNil:
+    return "error: LLM store unavailable"
   let providers = listProviders(store)
   if providers.len == 0:
     return "no LLM provider configured — run 'krantz llm' first"

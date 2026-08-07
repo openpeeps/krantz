@@ -235,6 +235,9 @@ proc dispatchCli(args: seq[string]) =
       useProviderCli(args[2])
     elif args.len == 2:
       let store = openLLMStore()
+      if store.isNil:
+        stderr.writeLine "krantz: LLM store unavailable"
+        quit(1)
       let name = args[1]
       let address = readValue("provider address: ")
       let key = readSecret("api key: ")
