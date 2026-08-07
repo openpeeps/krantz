@@ -52,8 +52,6 @@ Commands:
   llm list             List configured LLM providers
   llm use <provider>   Set the default LLM provider
   help                 Show this help
-
-Run without arguments to enter the REPL shell.
 ```
 
 ### Krantz Config
