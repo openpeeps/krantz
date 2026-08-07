@@ -65,8 +65,12 @@
   <li><a class="reference" href="#addHistory%2CShellState%2Cstring" title="addHistory(state: var ShellState; cmd: string)">addHistory(state: var ShellState; cmd: string)</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">ensureHistoryStore
+  <li><a class="reference" href="#ensureHistoryStore%2CShellState" title="ensureHistoryStore(state: var ShellState)">ensureHistoryStore(state: var ShellState)</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">getHistory
-  <li><a class="reference" href="#getHistory%2CShellState%2Cint" title="getHistory(state: ShellState; n: int = 20): seq[(string, string, int64)]">getHistory(state: ShellState; n: int = 20): seq[(string, string, int64)]</a></li>
+  <li><a class="reference" href="#getHistory%2CShellState%2Cint" title="getHistory(state: var ShellState; n: int = 20): seq[(string, string, int64)]">getHistory(state: var ShellState; n: int = 20): seq[(string, string, int64)]</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">loadAllHistory
@@ -101,10 +105,10 @@
   <dl class="item">
     <div id="addHistory-procs-all">
   <div id="addHistory,ShellState,string">
-  <dt><pre><span class="Keyword">proc</span> <a href="#addHistory%2CShellState%2Cstring"><span class="Identifier">addHistory</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="types.html#ShellState"><span class="Identifier">ShellState</span></a><span class="Other">;</span> <span class="Identifier">cmd</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">StoreError</span><span class="Other">,</span>
-    <span class="Identifier">KeyError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">WalError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span>
-    <span class="Identifier">TimeEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteDirEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#addHistory%2CShellState%2Cstring"><span class="Identifier">addHistory</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="types.html#ShellState"><span class="Identifier">ShellState</span></a><span class="Other">;</span> <span class="Identifier">cmd</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span>
+    <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">StoreError</span><span class="Other">,</span> <span class="Identifier">KeyError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">WalError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span>
+    <span class="Identifier">ReadEnvEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">WriteDirEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">,</span>
+    <span class="Identifier">RootEffect</span><span class="Other">,</span> <span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -113,10 +117,26 @@
 </div>
 
 </div>
+<div id="ensureHistoryStore-procs-all">
+  <div id="ensureHistoryStore,ShellState">
+  <dt><pre><span class="Keyword">proc</span> <a href="#ensureHistoryStore%2CShellState"><span class="Identifier">ensureHistoryStore</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="types.html#ShellState"><span class="Identifier">ShellState</span></a><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadEnvEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">,</span>
+    <span class="Identifier">WriteDirEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">,</span> <span class="Identifier">RootEffect</span><span class="Other">,</span> <span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Opens the history store on first use, so a fresh instance doesn't pay the store/WAL load cost until history is actually needed.
+    
+  </dd>
+</div>
+
+</div>
 <div id="getHistory-procs-all">
   <div id="getHistory,ShellState,int">
-  <dt><pre><span class="Keyword">proc</span> <a href="#getHistory%2CShellState%2Cint"><span class="Identifier">getHistory</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <a href="types.html#ShellState"><span class="Identifier">ShellState</span></a><span class="Other">;</span> <span class="Identifier">n</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">20</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Other">(</span><span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">int64</span><span class="Other">)</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#getHistory%2CShellState%2Cint"><span class="Identifier">getHistory</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="types.html#ShellState"><span class="Identifier">ShellState</span></a><span class="Other">;</span> <span class="Identifier">n</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">20</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
+    <span class="Other">(</span><span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">int64</span><span class="Other">)</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span>
+    <span class="Identifier">ReadEnvEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">WriteDirEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">,</span>
+    <span class="Identifier">RootEffect</span><span class="Other">,</span> <span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -140,7 +160,7 @@
 <div id="openHistoryStore-procs-all">
   <div id="openHistoryStore,ShellState">
   <dt><pre><span class="Keyword">proc</span> <a href="#openHistoryStore%2CShellState"><span class="Identifier">openHistoryStore</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="types.html#ShellState"><span class="Identifier">ShellState</span></a><span class="Other">)</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">StoreError</span><span class="Other">,</span> <span class="Identifier">WalError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">KeyError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span>
     <span class="Identifier">ReadEnvEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">WriteDirEffect</span><span class="Other">,</span> <span class="Identifier">ReadDirEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">,</span>
     <span class="Identifier">RootEffect</span><span class="Other">,</span> <span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
@@ -161,7 +181,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-07-16 13:30:32 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-07 13:40:06 UTC</small>
       </div>
     </div>
   </div>

@@ -1,0 +1,12 @@
+nimTitle	llm	krantz/llm.html	module krantz/llm		0
+nim	llmStorePath	krantz/llm.html#llmStorePath	proc llmStorePath(): string		12
+nim	openLLMStore	krantz/llm.html#openLLMStore	proc openLLMStore(): Store		15
+nim	getDefaultProvider	krantz/llm.html#getDefaultProvider,Store	proc getDefaultProvider(store: Store): string		75
+nim	saveProvider	krantz/llm.html#saveProvider,Store,string,string,string,string	proc saveProvider(store: Store; name, address, key, model: string)		78
+nim	ProviderInfo	krantz/llm.html#ProviderInfo	object ProviderInfo		97
+nim	listProviders	krantz/llm.html#listProviders,Store	proc listProviders(store: Store): seq[ProviderInfo]		100
+nim	setDefaultProvider	krantz/llm.html#setDefaultProvider,Store,string	proc setDefaultProvider(store: Store; name: string): bool		110
+nim	readValue	krantz/llm.html#readValue,string	proc readValue(prompt: string): string		118
+nim	readSecret	krantz/llm.html#readSecret,string	proc readSecret(prompt: string): string		126
+nim	listProvidersCli	krantz/llm.html#listProvidersCli	proc listProvidersCli()		146
+nim	useProviderCli	krantz/llm.html#useProviderCli,string	proc useProviderCli(name: string)		163

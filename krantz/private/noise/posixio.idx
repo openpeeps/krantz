@@ -6,7 +6,7 @@ nim	IoCtx	krantz/private/noise/posixio.html#IoCtx	type IoCtx		29
 nim	newIoCtx	krantz/private/noise/posixio.html#newIoCtx	proc newIoCtx(): IoCtx		53
 nim	disableRawMode	krantz/private/noise/posixio.html#disableRawMode,IoCtx	proc disableRawMode(ctx: IoCtx)		60
 nim	enableRawMode	krantz/private/noise/posixio.html#enableRawMode,IoCtx	proc enableRawMode(ctx: IoCtx): bool		70
-nim	readChar	krantz/private/noise/posixio.html#readChar	proc readChar(): char32		405
-nim	write32	krantz/private/noise/posixio.html#write32,File,seq[char32],int	proc write32(f: File; data: seq[char32]; len: int)		455
-nim	clearToEnd	krantz/private/noise/posixio.html#clearToEnd,File,int	proc clearToEnd(f: File; len: int)		459
-nim	clearScreen	krantz/private/noise/posixio.html#clearScreen	proc clearScreen()		462
+nim	readChar	krantz/private/noise/posixio.html#readChar	proc readChar(): char32		424
+nim	write32	krantz/private/noise/posixio.html#write32,File,seq[char32],int	proc write32(f: File; data: seq[char32]; len: int)		474
+nim	clearToEnd	krantz/private/noise/posixio.html#clearToEnd,File,int	proc clearToEnd(f: File; len: int)		478
+nim	clearScreen	krantz/private/noise/posixio.html#clearScreen	proc clearScreen()		481

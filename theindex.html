@@ -28,7 +28,7 @@
     <label for="nav-toggle" id="nav-overlay"></label>
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="index.html">krantz</a>, <a href="krantz/config.html">krantz/config</a>, <a href="krantz/env.html">krantz/env</a>, <a href="krantz/executor.html">krantz/executor</a>, <a href="krantz/expansion.html">krantz/expansion</a>, <a href="krantz/history.html">krantz/history</a>, <a href="krantz/parser.html">krantz/parser</a>, <a href="krantz/policy.html">krantz/policy</a>, <a href="krantz/private/noise.html">krantz/private/noise</a>, <a href="krantz/private/noise/basic.html">krantz/private/noise/basic</a>, <a href="krantz/private/noise/history.html">krantz/private/noise/history</a>, <a href="krantz/private/noise/killring.html">krantz/private/noise/killring</a>, <a href="krantz/private/noise/posixio.html">krantz/private/noise/posixio</a>, <a href="krantz/private/noise/prompt.html">krantz/private/noise/prompt</a>, <a href="krantz/private/noise/styler.html">krantz/private/noise/styler</a>, <a href="krantz/private/noise/wcwidth.html">krantz/private/noise/wcwidth</a>, <a href="krantz/private/noise/wtf8.html">krantz/private/noise/wtf8</a>, <a href="krantz/prompt.html">krantz/prompt</a>, <a href="krantz/term.html">krantz/term</a>, <a href="krantz/types.html">krantz/types</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="index.html">krantz</a>, <a href="krantz/chat.html">krantz/chat</a>, <a href="krantz/config.html">krantz/config</a>, <a href="krantz/env.html">krantz/env</a>, <a href="krantz/executor.html">krantz/executor</a>, <a href="krantz/expansion.html">krantz/expansion</a>, <a href="krantz/history.html">krantz/history</a>, <a href="krantz/llm.html">krantz/llm</a>, <a href="krantz/parser.html">krantz/parser</a>, <a href="krantz/policy.html">krantz/policy</a>, <a href="krantz/private/noise.html">krantz/private/noise</a>, <a href="krantz/private/noise/basic.html">krantz/private/noise/basic</a>, <a href="krantz/private/noise/history.html">krantz/private/noise/history</a>, <a href="krantz/private/noise/killring.html">krantz/private/noise/killring</a>, <a href="krantz/private/noise/posixio.html">krantz/private/noise/posixio</a>, <a href="krantz/private/noise/prompt.html">krantz/private/noise/prompt</a>, <a href="krantz/private/noise/styler.html">krantz/private/noise/styler</a>, <a href="krantz/private/noise/wcwidth.html">krantz/private/noise/wcwidth</a>, <a href="krantz/private/noise/wtf8.html">krantz/private/noise/wtf8</a>, <a href="krantz/prompt.html">krantz/prompt</a>, <a href="krantz/spinny.html">krantz/spinny</a>, <a href="krantz/term.html">krantz/term</a>, <a href="krantz/types.html">krantz/types</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="actionKill" href="#actionKill"><span>actionKill:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="killring: KillRingAction.actionKill" href="krantz/private/noise/killring.html#actionKill">killring: KillRingAction.actionKill</a></li>
@@ -106,6 +106,10 @@
 <dt><a name="char8" href="#char8"><span>char8:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="basic: type char8" href="krantz/private/noise/basic.html#char8">basic: type char8</a></li>
+          </ul></dd>
+<dt><a name="chatQuery" href="#chatQuery"><span>chatQuery:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chat: proc chatQuery(line: string): string" href="krantz/chat.html#chatQuery%2Cstring">chat: proc chatQuery(line: string): string</a></li>
           </ul></dd>
 <dt><a name="check" href="#check"><span>check:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -233,6 +237,14 @@
 <li><a class="reference external"
           data-doc-search-tag="basic: const END_KEY" href="krantz/private/noise/basic.html#END_KEY">basic: const END_KEY</a></li>
           </ul></dd>
+<dt><a name="ensureHistoryStore" href="#ensureHistoryStore"><span>ensureHistoryStore:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="history: proc ensureHistoryStore(state: var ShellState)" href="krantz/history.html#ensureHistoryStore%2CShellState">history: proc ensureHistoryStore(state: var ShellState)</a></li>
+          </ul></dd>
+<dt><a name="error" href="#error"><span>error:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: proc error(spinny: Spinny; msg: string)" href="krantz/spinny.html#error%2CSpinny%2Cstring">spinny: proc error(spinny: Spinny; msg: string)</a></li>
+          </ul></dd>
 <dt><a name="ESC_KEY" href="#ESC_KEY"><span>ESC_KEY:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="basic: const ESC_KEY" href="krantz/private/noise/basic.html#ESC_KEY">basic: const ESC_KEY</a></li>
@@ -283,13 +295,17 @@
 <li><a class="reference external"
           data-doc-search-tag="prompt: proc getCwd(): string" href="krantz/prompt.html#getCwd">prompt: proc getCwd(): string</a></li>
           </ul></dd>
+<dt><a name="getDefaultProvider" href="#getDefaultProvider"><span>getDefaultProvider:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: proc getDefaultProvider(store: Store): string" href="krantz/llm.html#getDefaultProvider%2CStore">llm: proc getDefaultProvider(store: Store): string</a></li>
+          </ul></dd>
 <dt><a name="getGitBranch" href="#getGitBranch"><span>getGitBranch:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="prompt: proc getGitBranch(): string" href="krantz/prompt.html#getGitBranch">prompt: proc getGitBranch(): string</a></li>
           </ul></dd>
 <dt><a name="getHistory" href="#getHistory"><span>getHistory:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="history: proc getHistory(state: ShellState; n: int = 20): seq[(string, string, int64)]" href="krantz/history.html#getHistory%2CShellState%2Cint">history: proc getHistory(state: ShellState; n: int = 20): seq[(string, string, int64)]</a></li>
+          data-doc-search-tag="history: proc getHistory(state: var ShellState; n: int = 20): seq[(string, string, int64)]" href="krantz/history.html#getHistory%2CShellState%2Cint">history: proc getHistory(state: var ShellState; n: int = 20): seq[(string, string, int64)]</a></li>
           </ul></dd>
 <dt><a name="getKeyType" href="#getKeyType"><span>getKeyType:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -310,6 +326,10 @@
 <dt><a name="gShuttingDown" href="#gShuttingDown"><span>gShuttingDown:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="posixio: var gShuttingDown" href="krantz/private/noise/posixio.html#gShuttingDown">posixio: var gShuttingDown</a></li>
+          </ul></dd>
+<dt><a name="handleChatCommand" href="#handleChatCommand"><span>handleChatCommand:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chat: proc handleChatCommand(line: string): int" href="krantz/chat.html#handleChatCommand%2Cstring">chat: proc handleChatCommand(line: string): int</a></li>
           </ul></dd>
 <dt><a name="histories" href="#histories"><span>histories:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -393,6 +413,10 @@
 <li><a class="reference external"
           data-doc-search-tag="basic: proc isAlphaNum(c: char32): bool" href="krantz/private/noise/basic.html#isAlphaNum%2Cchar32">basic: proc isAlphaNum(c: char32): bool</a></li>
           </ul></dd>
+<dt><a name="isChatCommand" href="#isChatCommand"><span>isChatCommand:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chat: proc isChatCommand(line: string): bool" href="krantz/chat.html#isChatCommand%2Cstring">chat: proc isChatCommand(line: string): bool</a></li>
+          </ul></dd>
 <dt><a name="isControlChar" href="#isControlChar"><span>isControlChar:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="basic: proc isControlChar(testChar: char32): bool" href="krantz/private/noise/basic.html#isControlChar%2Cchar32">basic: proc isControlChar(testChar: char32): bool</a></li>
@@ -475,6 +499,18 @@
 <li><a class="reference external"
           data-doc-search-tag="parser: proc lexLine(input: string): seq[Token]" href="krantz/parser.html#lexLine%2Cstring">parser: proc lexLine(input: string): seq[Token]</a></li>
           </ul></dd>
+<dt><a name="listProviders" href="#listProviders"><span>listProviders:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: proc listProviders(store: Store): seq[ProviderInfo]" href="krantz/llm.html#listProviders%2CStore">llm: proc listProviders(store: Store): seq[ProviderInfo]</a></li>
+          </ul></dd>
+<dt><a name="listProvidersCli" href="#listProvidersCli"><span>listProvidersCli:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: proc listProvidersCli()" href="krantz/llm.html#listProvidersCli">llm: proc listProvidersCli()</a></li>
+          </ul></dd>
+<dt><a name="llmStorePath" href="#llmStorePath"><span>llmStorePath:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: proc llmStorePath(): string" href="krantz/llm.html#llmStorePath">llm: proc llmStorePath(): string</a></li>
+          </ul></dd>
 <dt><a name="load" href="#load"><span>load:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="history: proc load(self: var History; fileName: string): bool" href="krantz/private/noise/history.html#load%2CHistory%2Cstring">history: proc load(self: var History; fileName: string): bool</a></li>
@@ -543,6 +579,10 @@
 <li><a class="reference external"
           data-doc-search-tag="policy: proc newPolicyEngine(config: KrantzConfig): PolicyEngine" href="krantz/policy.html#newPolicyEngine%2CKrantzConfig">policy: proc newPolicyEngine(config: KrantzConfig): PolicyEngine</a></li>
           </ul></dd>
+<dt><a name="newSpinny" href="#newSpinny"><span>newSpinny:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: proc newSpinny(text: string; s: Spinner; time = false): Spinny" href="krantz/spinny.html#newSpinny%2Cstring%2CSpinner">spinny: proc newSpinny(text: string; s: Spinner; time = false): Spinny</a></li>
+          </ul></dd>
 <dt><a name="newStyler" href="#newStyler"><span>newStyler:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="styler: proc newStyler(): Styler" href="krantz/private/noise/styler.html#newStyler">styler: proc newStyler(): Styler</a></li>
@@ -562,6 +602,10 @@
 <dt><a name="openHistoryStore" href="#openHistoryStore"><span>openHistoryStore:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="history: proc openHistoryStore(state: var ShellState)" href="krantz/history.html#openHistoryStore%2CShellState">history: proc openHistoryStore(state: var ShellState)</a></li>
+          </ul></dd>
+<dt><a name="openLLMStore" href="#openLLMStore"><span>openLLMStore:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: proc openLLMStore(): Store" href="krantz/llm.html#openLLMStore">llm: proc openLLMStore(): Store</a></li>
           </ul></dd>
 <dt><a name="PAGE_DOWN_KEY" href="#PAGE_DOWN_KEY"><span>PAGE_DOWN_KEY:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -685,6 +729,10 @@
 <li><a class="reference external"
           data-doc-search-tag="noise: const promptWordEditing" href="krantz/private/noise.html#promptWordEditing">noise: const promptWordEditing</a></li>
           </ul></dd>
+<dt><a name="ProviderInfo" href="#ProviderInfo"><span>ProviderInfo:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: object ProviderInfo" href="krantz/llm.html#ProviderInfo">llm: object ProviderInfo</a></li>
+          </ul></dd>
 <dt><a name="psAndThen" href="#psAndThen"><span>psAndThen:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="types: PipelineSep.psAndThen" href="krantz/types.html#psAndThen">types: PipelineSep.psAndThen</a></li>
@@ -724,6 +772,14 @@
 <dt><a name="readLineInput" href="#readLineInput"><span>readLineInput:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="term: proc readLineInput(prompt: Styler): tuple[success: bool, line: string]" href="krantz/term.html#readLineInput%2CStyler">term: proc readLineInput(prompt: Styler): tuple[success: bool, line: string]</a></li>
+          </ul></dd>
+<dt><a name="readSecret" href="#readSecret"><span>readSecret:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: proc readSecret(prompt: string): string" href="krantz/llm.html#readSecret%2Cstring">llm: proc readSecret(prompt: string): string</a></li>
+          </ul></dd>
+<dt><a name="readValue" href="#readValue"><span>readValue:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: proc readValue(prompt: string): string" href="krantz/llm.html#readValue%2Cstring">llm: proc readValue(prompt: string): string</a></li>
           </ul></dd>
 <dt><a name="recalculate" href="#recalculate"><span>recalculate:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -781,9 +837,17 @@
 <li><a class="reference external"
           data-doc-search-tag="config: proc saveConfig(cfg: KrantzConfig)" href="krantz/config.html#saveConfig%2CKrantzConfig">config: proc saveConfig(cfg: KrantzConfig)</a></li>
           </ul></dd>
+<dt><a name="saveProvider" href="#saveProvider"><span>saveProvider:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: proc saveProvider(store: Store; name, address, key, model: string)" href="krantz/llm.html#saveProvider%2CStore%2Cstring%2Cstring%2Cstring%2Cstring">llm: proc saveProvider(store: Store; name, address, key, model: string)</a></li>
+          </ul></dd>
 <dt><a name="setCompletionHook" href="#setCompletionHook"><span>setCompletionHook:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="noise: proc setCompletionHook(self: var Noise; prc: CompletionHook)" href="krantz/private/noise.html#setCompletionHook%2CNoise%2CCompletionHook">noise: proc setCompletionHook(self: var Noise; prc: CompletionHook)</a></li>
+          </ul></dd>
+<dt><a name="setDefaultProvider" href="#setDefaultProvider"><span>setDefaultProvider:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: proc setDefaultProvider(store: Store; name: string): bool" href="krantz/llm.html#setDefaultProvider%2CStore%2Cstring">llm: proc setDefaultProvider(store: Store; name: string): bool</a></li>
           </ul></dd>
 <dt><a name="setMaxLen" href="#setMaxLen"><span>setMaxLen:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -796,6 +860,14 @@
           data-doc-search-tag="noise: proc setPrompt(self: var Noise; text: string)" href="krantz/private/noise.html#setPrompt%2CNoise%2Cstring">noise: proc setPrompt(self: var Noise; text: string)</a></li>
           <li><a class="reference external"
           data-doc-search-tag="noise: proc setPrompt(self: var Noise; text: Styler)" href="krantz/private/noise.html#setPrompt%2CNoise%2CStyler">noise: proc setPrompt(self: var Noise; text: Styler)</a></li>
+          </ul></dd>
+<dt><a name="setSymbol" href="#setSymbol"><span>setSymbol:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: proc setSymbol(spinny: Spinny; symbol: string)" href="krantz/spinny.html#setSymbol%2CSpinny%2Cstring">spinny: proc setSymbol(spinny: Spinny; symbol: string)</a></li>
+          </ul></dd>
+<dt><a name="setText" href="#setText"><span>setText:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: proc setText(spinny: Spinny; text: string)" href="krantz/spinny.html#setText%2CSpinny%2Cstring">spinny: proc setText(spinny: Spinny; text: string)</a></li>
           </ul></dd>
 <dt><a name="ShellState" href="#ShellState"><span>ShellState:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -811,9 +883,145 @@
 <li><a class="reference external"
           data-doc-search-tag="types: type SimpleCommand" href="krantz/types.html#SimpleCommand">types: type SimpleCommand</a></li>
           </ul></dd>
+<dt><a name="skArc" href="#skArc"><span>skArc:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skArc" href="krantz/spinny.html#skArc">spinny: const skArc</a></li>
+          </ul></dd>
+<dt><a name="skArrow" href="#skArrow"><span>skArrow:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skArrow" href="krantz/spinny.html#skArrow">spinny: const skArrow</a></li>
+          </ul></dd>
+<dt><a name="skArrow3" href="#skArrow3"><span>skArrow3:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skArrow3" href="krantz/spinny.html#skArrow3">spinny: const skArrow3</a></li>
+          </ul></dd>
+<dt><a name="skBouncingBall" href="#skBouncingBall"><span>skBouncingBall:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skBouncingBall" href="krantz/spinny.html#skBouncingBall">spinny: const skBouncingBall</a></li>
+          </ul></dd>
+<dt><a name="skBouncingBar" href="#skBouncingBar"><span>skBouncingBar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skBouncingBar" href="krantz/spinny.html#skBouncingBar">spinny: const skBouncingBar</a></li>
+          </ul></dd>
+<dt><a name="skBoxBounce" href="#skBoxBounce"><span>skBoxBounce:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skBoxBounce" href="krantz/spinny.html#skBoxBounce">spinny: const skBoxBounce</a></li>
+          </ul></dd>
+<dt><a name="skChristmas" href="#skChristmas"><span>skChristmas:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skChristmas" href="krantz/spinny.html#skChristmas">spinny: const skChristmas</a></li>
+          </ul></dd>
+<dt><a name="skCircleQuarters" href="#skCircleQuarters"><span>skCircleQuarters:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skCircleQuarters" href="krantz/spinny.html#skCircleQuarters">spinny: const skCircleQuarters</a></li>
+          </ul></dd>
+<dt><a name="skClock" href="#skClock"><span>skClock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skClock" href="krantz/spinny.html#skClock">spinny: const skClock</a></li>
+          </ul></dd>
+<dt><a name="skDots" href="#skDots"><span>skDots:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skDots" href="krantz/spinny.html#skDots">spinny: const skDots</a></li>
+          </ul></dd>
+<dt><a name="skDots2" href="#skDots2"><span>skDots2:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skDots2" href="krantz/spinny.html#skDots2">spinny: const skDots2</a></li>
+          </ul></dd>
+<dt><a name="skDots3" href="#skDots3"><span>skDots3:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skDots3" href="krantz/spinny.html#skDots3">spinny: const skDots3</a></li>
+          </ul></dd>
+<dt><a name="skEarth" href="#skEarth"><span>skEarth:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skEarth" href="krantz/spinny.html#skEarth">spinny: const skEarth</a></li>
+          </ul></dd>
+<dt><a name="skGrowHorizontal" href="#skGrowHorizontal"><span>skGrowHorizontal:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skGrowHorizontal" href="krantz/spinny.html#skGrowHorizontal">spinny: const skGrowHorizontal</a></li>
+          </ul></dd>
+<dt><a name="skGrowVertical" href="#skGrowVertical"><span>skGrowVertical:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skGrowVertical" href="krantz/spinny.html#skGrowVertical">spinny: const skGrowVertical</a></li>
+          </ul></dd>
+<dt><a name="skHamburger" href="#skHamburger"><span>skHamburger:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skHamburger" href="krantz/spinny.html#skHamburger">spinny: const skHamburger</a></li>
+          </ul></dd>
+<dt><a name="skLine" href="#skLine"><span>skLine:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skLine" href="krantz/spinny.html#skLine">spinny: const skLine</a></li>
+          </ul></dd>
+<dt><a name="skLine2" href="#skLine2"><span>skLine2:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skLine2" href="krantz/spinny.html#skLine2">spinny: const skLine2</a></li>
+          </ul></dd>
+<dt><a name="skMonkey" href="#skMonkey"><span>skMonkey:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skMonkey" href="krantz/spinny.html#skMonkey">spinny: const skMonkey</a></li>
+          </ul></dd>
+<dt><a name="skMoon" href="#skMoon"><span>skMoon:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skMoon" href="krantz/spinny.html#skMoon">spinny: const skMoon</a></li>
+          </ul></dd>
+<dt><a name="skNoise" href="#skNoise"><span>skNoise:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skNoise" href="krantz/spinny.html#skNoise">spinny: const skNoise</a></li>
+          </ul></dd>
+<dt><a name="skPipe" href="#skPipe"><span>skPipe:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skPipe" href="krantz/spinny.html#skPipe">spinny: const skPipe</a></li>
+          </ul></dd>
+<dt><a name="skPoint" href="#skPoint"><span>skPoint:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skPoint" href="krantz/spinny.html#skPoint">spinny: const skPoint</a></li>
+          </ul></dd>
+<dt><a name="skShark" href="#skShark"><span>skShark:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skShark" href="krantz/spinny.html#skShark">spinny: const skShark</a></li>
+          </ul></dd>
+<dt><a name="skSimpleDots" href="#skSimpleDots"><span>skSimpleDots:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skSimpleDots" href="krantz/spinny.html#skSimpleDots">spinny: const skSimpleDots</a></li>
+          </ul></dd>
+<dt><a name="skSimpleDotsScrolling" href="#skSimpleDotsScrolling"><span>skSimpleDotsScrolling:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skSimpleDotsScrolling" href="krantz/spinny.html#skSimpleDotsScrolling">spinny: const skSimpleDotsScrolling</a></li>
+          </ul></dd>
+<dt><a name="skStar" href="#skStar"><span>skStar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skStar" href="krantz/spinny.html#skStar">spinny: const skStar</a></li>
+          </ul></dd>
+<dt><a name="skStar2" href="#skStar2"><span>skStar2:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skStar2" href="krantz/spinny.html#skStar2">spinny: const skStar2</a></li>
+          </ul></dd>
+<dt><a name="skTriangle" href="#skTriangle"><span>skTriangle:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skTriangle" href="krantz/spinny.html#skTriangle">spinny: const skTriangle</a></li>
+          </ul></dd>
+<dt><a name="skWeather" href="#skWeather"><span>skWeather:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: const skWeather" href="krantz/spinny.html#skWeather">spinny: const skWeather</a></li>
+          </ul></dd>
 <dt><a name="sourceFile" href="#sourceFile"><span>sourceFile:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="executor: proc sourceFile(path: string): bool" href="krantz/executor.html#sourceFile%2Cstring">executor: proc sourceFile(path: string): bool</a></li>
+          </ul></dd>
+<dt><a name="Spinner" href="#Spinner"><span>Spinner:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: object Spinner" href="krantz/spinny.html#Spinner">spinny: object Spinner</a></li>
+          </ul></dd>
+<dt><a name="Spinny" href="#Spinny"><span>Spinny:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: type Spinny" href="krantz/spinny.html#Spinny">spinny: type Spinny</a></li>
+          </ul></dd>
+<dt><a name="start" href="#start"><span>start:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: proc start(spinny: Spinny)" href="krantz/spinny.html#start%2CSpinny">spinny: proc start(spinny: Spinny)</a></li>
+          </ul></dd>
+<dt><a name="stop" href="#stop"><span>stop:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: proc stop(spinny: Spinny)" href="krantz/spinny.html#stop%2CSpinny">spinny: proc stop(spinny: Spinny)</a></li>
           </ul></dd>
 <dt><a name="style" href="#style"><span>style:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -822,6 +1030,12 @@
 <dt><a name="Styler" href="#Styler"><span>Styler:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="styler: type Styler" href="krantz/private/noise/styler.html#Styler">styler: type Styler</a></li>
+          </ul></dd>
+<dt><a name="success" href="#success"><span>success:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="spinny: proc success(spinny: Spinny)" href="krantz/spinny.html#success%2CSpinny">spinny: proc success(spinny: Spinny)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="spinny: proc success(spinny: Spinny; msg: string)" href="krantz/spinny.html#success%2CSpinny%2Cstring">spinny: proc success(spinny: Spinny; msg: string)</a></li>
           </ul></dd>
 <dt><a name="surrogatePair" href="#surrogatePair"><span>surrogatePair:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -917,6 +1131,10 @@
 <li><a class="reference external"
           data-doc-search-tag="history: proc updateLast(self: var History; text: string)" href="krantz/private/noise/history.html#updateLast%2CHistory%2Cstring">history: proc updateLast(self: var History; text: string)</a></li>
           </ul></dd>
+<dt><a name="useProviderCli" href="#useProviderCli"><span>useProviderCli:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="llm: proc useProviderCli(name: string)" href="krantz/llm.html#useProviderCli%2Cstring">llm: proc useProviderCli(name: string)</a></li>
+          </ul></dd>
 <dt><a name="user" href="#user"><span>user:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="prompt: proc user(): string" href="krantz/prompt.html#user">prompt: proc user(): string</a></li>
@@ -1005,7 +1223,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-07-16 13:30:32 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-07 13:40:07 UTC</small>
       </div>
     </div>
   </div>

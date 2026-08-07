@@ -1,0 +1,42 @@
+nimTitle	spinny	krantz/spinny.html	module krantz/spinny		0
+nim	Spinner	krantz/spinny.html#Spinner	object Spinner		13
+nim	Spinny	krantz/spinny.html#Spinny	type Spinny		17
+nim	newSpinny	krantz/spinny.html#newSpinny,string,Spinner	proc newSpinny(text: string; s: Spinner; time = false): Spinny		42
+nim	setSymbol	krantz/spinny.html#setSymbol,Spinny,string	proc setSymbol(spinny: Spinny; symbol: string)		52
+nim	setText	krantz/spinny.html#setText,Spinny,string	proc setText(spinny: Spinny; text: string)		55
+nim	start	krantz/spinny.html#start,Spinny	proc start(spinny: Spinny)		111
+nim	stop	krantz/spinny.html#stop,Spinny	proc stop(spinny: Spinny)		124
+nim	success	krantz/spinny.html#success,Spinny,string	proc success(spinny: Spinny; msg: string)		127
+nim	success	krantz/spinny.html#success,Spinny	proc success(spinny: Spinny)		130
+nim	error	krantz/spinny.html#error,Spinny,string	proc error(spinny: Spinny; msg: string)		133
+nim	skDots	krantz/spinny.html#skDots	const skDots		138
+nim	skDots2	krantz/spinny.html#skDots2	const skDots2		139
+nim	skDots3	krantz/spinny.html#skDots3	const skDots3		140
+nim	skLine	krantz/spinny.html#skLine	const skLine		141
+nim	skLine2	krantz/spinny.html#skLine2	const skLine2		142
+nim	skPipe	krantz/spinny.html#skPipe	const skPipe		143
+nim	skSimpleDots	krantz/spinny.html#skSimpleDots	const skSimpleDots		144
+nim	skSimpleDotsScrolling	krantz/spinny.html#skSimpleDotsScrolling	const skSimpleDotsScrolling		145
+nim	skStar	krantz/spinny.html#skStar	const skStar		146
+nim	skStar2	krantz/spinny.html#skStar2	const skStar2		147
+nim	skBouncingBar	krantz/spinny.html#skBouncingBar	const skBouncingBar		148
+nim	skBouncingBall	krantz/spinny.html#skBouncingBall	const skBouncingBall		149
+nim	skPoint	krantz/spinny.html#skPoint	const skPoint		150
+nim	skCircleQuarters	krantz/spinny.html#skCircleQuarters	const skCircleQuarters		151
+nim	skArc	krantz/spinny.html#skArc	const skArc		152
+nim	skTriangle	krantz/spinny.html#skTriangle	const skTriangle		153
+nim	skGrowVertical	krantz/spinny.html#skGrowVertical	const skGrowVertical		154
+nim	skGrowHorizontal	krantz/spinny.html#skGrowHorizontal	const skGrowHorizontal		155
+nim	skBoxBounce	krantz/spinny.html#skBoxBounce	const skBoxBounce		156
+nim	skArrow	krantz/spinny.html#skArrow	const skArrow		157
+nim	skArrow3	krantz/spinny.html#skArrow3	const skArrow3		158
+nim	skClock	krantz/spinny.html#skClock	const skClock		159
+nim	skEarth	krantz/spinny.html#skEarth	const skEarth		160
+nim	skMoon	krantz/spinny.html#skMoon	const skMoon		161
+nim	skWeather	krantz/spinny.html#skWeather	const skWeather		162
+nim	skChristmas	krantz/spinny.html#skChristmas	const skChristmas		163
+nim	skMonkey	krantz/spinny.html#skMonkey	const skMonkey		164
+nim	skHamburger	krantz/spinny.html#skHamburger	const skHamburger		165
+nim	skNoise	krantz/spinny.html#skNoise	const skNoise		166
+nim	skShark	krantz/spinny.html#skShark	const skShark		167
+nimgrp	success	krantz/spinny.html#success-procs-all	proc		127
