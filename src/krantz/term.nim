@@ -5,6 +5,7 @@
 #          https://github.com/georgelemon/krantz
 
 import std/[algorithm, os, posix, sets, strutils, terminal, termios]
+import floof
 import ./private/noise
 import ./private/noise/posixio as noiseio
 
@@ -59,20 +60,21 @@ proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
 
   # Phase 2: text ends with "/" → list directory contents
   if text.endsWith("/"):
-    var count = 0
+    var entries: seq[string]
     try:
       for kind, path in walkDir(expanded):
         let entry = path.extractFilename()
         if hiddenFor("", entry): continue
         if kind in {pcDir, pcLinkToDir}:
-          self.addCompletion(text / entry & "/")
-          inc count
+          entries.add(text / entry & "/")
         elif not dirsOnly:
-          self.addCompletion(text / entry)
-          inc count
+          entries.add(text / entry)
     except OSError:
       discard
-    return count
+    sort(entries, cmpIgnoreCase)
+    for e in entries:
+      self.addCompletion(e)
+    return entries.len
 
   # Phase 1: text matches an exact directory → add / and siblings
   if dirExists(expanded):
@@ -124,7 +126,29 @@ proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
     sort(candidates, cmpIgnoreCase)
     for c in candidates:
       self.addCompletion(c)
-  result = candidates.len
+    result = candidates.len
+  elif prefix.len > 0:
+    # Phase 4: fuzzy match fallback (floof)
+    var haystack: seq[string]
+    try:
+      for kind, path in walkDir(absDir):
+        let name = path.extractFilename()
+        if hiddenFor("", name): continue
+        if dirsOnly and kind notin {pcDir, pcLinkToDir}: continue
+        haystack.add(name)
+    except OSError:
+      discard
+    if haystack.len > 0:
+      let matches = floof.search(prefix, haystack)
+      let maxResults = min(matches.len, 10)
+      for i in 0..<maxResults:
+        let name = matches[i].text
+        let completion = if dir != ".": dir / name else: name
+        if dirExists(absDir / name):
+          self.addCompletion(completion & "/")
+        elif not dirsOnly:
+          self.addCompletion(completion)
+      result = maxResults
 
 const shellBuiltins = [
   "alias", "bg", "cd", "clear", "echo", "env", "exit", "export", "fg",

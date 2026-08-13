@@ -121,6 +121,8 @@ proc runShell() =
           addHistory(state, trimmed)
           historyList.add(trimmed)
           gNoise.historyAdd(trimmed)
+    if state.config.prompt.git:
+      state.cachedBranch = getGitBranch()
 
 proc printUsage() =
   echo "Usage: krantz [command]"

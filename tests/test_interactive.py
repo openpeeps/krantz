@@ -73,14 +73,15 @@ class Fixture:
 class Shell:
     """A krantz REPL session running on a pty."""
 
-    def __init__(self, fix, path=None):
+    def __init__(self, fix, path=None, cwd=None):
         self.fix = fix
         self.path = path or fix.path
+        self.cwd = cwd or fix.work
         # krantz's loadShellEnv() runs a login shell that sources ~/.zshrc and
         # overwrites PATH, so pin PATH there to keep tests hermetic.
         with open(os.path.join(fix.home, ".zshrc"), "w") as fh:
             fh.write("export PATH='%s'\n" % self.path)
-        self.pid, self.fd = pty_fork(self.path, fix.work, fix.home)
+        self.pid, self.fd = pty_fork(self.path, self.cwd, fix.home)
         fcntl.ioctl(self.fd, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 80, 0, 0))
         self.out = bytearray()
 
@@ -167,11 +168,22 @@ def t_completion_cycle(fix):
     sh.send(TAB, t=0.3)
     r.append(("second candidate = beta.txt", b"cat beta.txt " in sh.segment(base)))
 
-    # 8 candidates: alpha, beta, deep/, gamma, krantz alias, My Folder/, src/, subdir/
+    # candidates: alpha.txt, beta.txt, deep/, gamma.log, krantz alias, ...
     base = len(sh.out)
-    for _ in range(7):
-        sh.send(TAB, t=0.25)
-    r.append(("wraps back to alpha.txt", b"cat alpha.txt " in sh.segment(base)))
+    sh.send(TAB, t=0.3)
+    r.append(("third candidate = deep/", b"cat deep/" in sh.segment(base)))
+
+    base = len(sh.out)
+    sh.send(TAB, t=0.3)
+    r.append(("TAB enters ls mode (first child)", b"cat deep/path/" in sh.segment(base)))
+
+    base = len(sh.out)
+    sh.send(TAB, t=0.3)
+    r.append(("ls mode cycles single child", b"cat deep/path/" in sh.segment(base)))
+
+    base = len(sh.out)
+    sh.send(b"/", t=0.3)
+    r.append(("adding / descends into path", b"cat deep/path/here/" in sh.segment(base)))
 
     sh.close()
     return r
@@ -325,11 +337,8 @@ def t_completion_space_execute(fix):
     sh = Shell(fix)
     if not sh.wait_prompt():
         return [("prompt", False)]
-    # alpha(0) -> beta(1) -> deep/(2) -> gamma(3) -> krantz alias(4)
     base = len(sh.out)
-    sh.send(b"cat " + TAB, t=0.4)
-    for _ in range(4):
-        sh.send(TAB, t=0.25)
+    sh.send(b"cat kr" + TAB, t=0.4)
     seg_comp = sh.segment(base)
 
     base = len(sh.out)
@@ -340,6 +349,66 @@ def t_completion_space_execute(fix):
     sh.close()
     return [("escaped candidate inserted", b"cat krantz\\ alias " in seg_comp),
             ("command runs and prints content", b"HELLO" in seg_run)]
+
+
+def t_completion_fuzzy_cd(fix):
+    os.makedirs(os.path.join(fix.work, "groovebox"))
+    with open(os.path.join(fix.work, "widget.txt"), "w") as fh:
+        fh.write("widget")
+    r = []
+
+    sh = Shell(fix)
+    if not sh.wait_prompt():
+        return [("prompt", False)]
+    base = len(sh.out)
+    sh.send(b"cat wget" + TAB, t=0.5)
+    r.append(("cat wget<TAB> fuzzy -> widget.txt", b"cat widget.txt " in sh.segment(base)))
+    sh.close()
+
+    sh = Shell(fix)
+    if not sh.wait_prompt():
+        return [("prompt2", False)]
+    base = len(sh.out)
+    sh.send(b"cd box" + TAB, t=0.5)
+    r.append(("cd box<TAB> fuzzy -> groovebox/", b"cd groovebox/" in sh.segment(base)))
+    sh.send(CR, t=0.3)
+    sh.wait_prompt(base, timeout=5.0)
+    seg = sh.run_cmd(b"pwd")
+    r.append(("cd fuzzy completes into groovebox", (fix.work + "/groovebox").encode() in seg))
+    sh.close()
+    return r
+
+
+def t_completion_ls_mode(fix):
+    for d in ("src/docs", "src/krantz/somedir", "src/lib"):
+        os.makedirs(os.path.join(fix.work, d))
+    sh = Shell(fix)
+    if not sh.wait_prompt():
+        return [("prompt", False)]
+    r = []
+
+    base = len(sh.out)
+    sh.send(b"cd sr" + TAB, t=0.4)
+    r.append(("cd sr<TAB> -> cd src/", b"cd src/" in sh.segment(base)))
+
+    base = len(sh.out)
+    sh.send(TAB, t=0.3)
+    r.append(("TAB opens ls mode (docs)", b"cd src/docs/" in sh.segment(base)))
+
+    base = len(sh.out)
+    sh.send(TAB, t=0.3)
+    r.append(("TAB switches candidate (krantz)", b"cd src/krantz/" in sh.segment(base)))
+
+    base = len(sh.out)
+    sh.send(b"/", t=0.3)
+    r.append(("adding / descends into krantz", b"cd src/krantz/somedir/" in sh.segment(base)))
+
+    base = len(sh.out)
+    sh.send(TAB, t=0.3)
+    r.append(("ls mode of somedir stalls (empty)", b"cd src/krantz/somedir/" in sh.segment(base)))
+
+    sh.close()
+    return r
 
 
 def t_path_navigation(fix):
@@ -460,6 +529,45 @@ def t_policy(fix):
             ("file not removed", os.path.exists(note))]
 
 
+def make_git_repo(dirpath):
+    """Init a git repo with a commit on 'main' plus a 'feature' branch."""
+    env = dict(os.environ)
+    env.update({
+        "GIT_AUTHOR_NAME": "krantz test",
+        "GIT_AUTHOR_EMAIL": "krantz@test",
+        "GIT_COMMITTER_NAME": "krantz test",
+        "GIT_COMMITTER_EMAIL": "krantz@test",
+    })
+    run = lambda *args: subprocess.run(
+        ["git", "-c", "init.defaultBranch=main"] + list(args),
+        cwd=dirpath, env=env, capture_output=True, text=True)
+    if run("init").returncode != 0:
+        return False
+    if run("commit", "--allow-empty", "-m", "init").returncode != 0:
+        return False
+    if run("branch", "feature").returncode != 0:
+        return False
+    return True
+
+
+def t_git_branch_switch(fix):
+    repo = tempfile.mkdtemp(prefix="krantz-git-", dir="/tmp")
+    try:
+        if not make_git_repo(repo):
+            return [("git repo setup", False)]
+        sh = Shell(fix, cwd=repo)
+        if not sh.wait_prompt():
+            return [("prompt", False)]
+        r = []
+        r.append(("initial prompt shows main", b"git:(main)" in sh.segment(0)))
+        seg = sh.run_cmd(b"git switch feature")
+        r.append(("prompt shows feature after switch", b"git:(feature)" in seg))
+        sh.close()
+        return r
+    finally:
+        shutil.rmtree(repo, ignore_errors=True)
+
+
 def t_chat_offline(fix):
     sh = Shell(fix)
     if not sh.wait_prompt():
@@ -528,11 +636,14 @@ CASES = [
     ("completion-esc", t_completion_esc),
     ("completion-space-accept", t_completion_space_accept),
     ("completion-space-execute", t_completion_space_execute),
+    ("completion-fuzzy-cd", t_completion_fuzzy_cd),
+    ("completion-ls-mode", t_completion_ls_mode),
     ("path-navigation", t_path_navigation),
     ("pipes-redirection", t_pipes_redirection),
     ("variables", t_variables),
     ("trash", t_trash),
     ("policy", t_policy),
+    ("git-branch-switch", t_git_branch_switch),
     ("chat-offline", t_chat_offline),
     ("cli-help", t_cli_help),
     ("cli-complete", t_cli_complete),

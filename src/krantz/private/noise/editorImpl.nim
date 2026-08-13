@@ -28,6 +28,7 @@ when promptCompletion:
     if self.completionStrings.len == 0: return 0
 
     var index = 0
+    var inLs = false
     self.line.updateCompletion(completionText(parts.head,
       parts.tail, self.completionStrings[index]))
 
@@ -36,9 +37,24 @@ when promptCompletion:
       c = c.cleanupCtrl
       case c
       of ctrlChar('I'):
-        inc index
-        if index >= self.completionStrings.len:
+        if inLs:
+          inc index
+          if index >= self.completionStrings.len:
+            index = 0
+        elif self.completionStrings[index].endsWith("/"):
+          let descend = self.completionStrings[index]
+          self.completionStrings.setLen(0)
+          discard self.completionHook(self, descend)
+          if self.completionStrings.len == 0:
+            self.completionStrings.add(descend)
+            inLs = false
+          else:
+            inLs = true
           index = 0
+        else:
+          inc index
+          if index >= self.completionStrings.len:
+            index = 0
         self.line.updateCompletion(completionText(parts.head,
           parts.tail, self.completionStrings[index]))
       of ESC_KEY, ctrlChar('C'):
@@ -46,7 +62,18 @@ when promptCompletion:
         result = 0
         break
       else:
-        if c == ' '.ord and parts.head.len > 0 and parts.tail.len == 0 and
+        if c == '/'.ord and self.completionStrings[index].endsWith("/"):
+          let descend = self.completionStrings[index]
+          self.completionStrings.setLen(0)
+          discard self.completionHook(self, descend)
+          if self.completionStrings.len > 0:
+            index = 0
+            self.line.updateCompletion(completionText(parts.head,
+              parts.tail, self.completionStrings[index]))
+            result = 0
+          else:
+            result = '/'.ord
+        elif c == ' '.ord and parts.head.len > 0 and parts.tail.len == 0 and
            not self.completionStrings[index].endsWith("/"):
           # trailing space already inserted by the completion
           result = 0
