@@ -27,7 +27,9 @@ proc openHistoryStore*(state: var ShellState) =
   try:
     openOnce()
   except CatchableError as e:
-    # e.g. the WAL/snapshot was written by an incompatible boogie version
+    # e.g. the WAL/snapshot was written by an incompatible boogie version.
+    # NOTE: concurrent shells racing this recreate path may clash on delete;
+    # the window is tiny (version changes only) and the next op reopens cleanly.
     stderr.writeLine("krantz: history store unavailable (", e.msg, ") — recreating")
     for ext in [".wal", ".db"]:
       let f = histPath.changeFileExt(ext)
@@ -46,34 +48,60 @@ proc ensureHistoryStore*(state: var ShellState) =
   if state.store.isNil:
     openHistoryStore(state)
 
+proc closeHistoryStore*(state: var ShellState) =
+  ## Flushes and closes the history store, releasing `history.lock`.
+  ## Every history operation brackets open/close so concurrent shells only
+  ## serialize briefly on the lock instead of blocking for a whole session.
+  ## Best-effort: the reference is always dropped, so even a failed close
+  ## releases the OS lock (via the `FileLock` destructor) instead of wedging
+  ## other shells.
+  if state.store.isNil: return
+  try: state.store.close()
+  except CatchableError as e:
+    stderr.writeLine("krantz: history close failed (", e.msg, ")")
+  state.store = nil
+
 proc addHistory*(state: var ShellState, cmd: string) =
   ensureHistoryStore(state)
-  let maxSize = if state.config.history.maxSize > 0: state.config.history.maxSize else: 1000
-  discard state.store.insertRow("history", row({
-    "cmd": newTextValue(cmd),
-    "ts": newIntValue(epochTime().int64)
-  }))
-  let tbl = state.store.getTable("history").get()
-  var count = 0
-  var toDelete: seq[string]
-  for pk, _ in tbl.allRows():
-    inc count
-    if count > maxSize:
-      toDelete.add(pk)
-  for pk in toDelete:
-    discard state.store.deleteRow("history", pk)
+  if state.store.isNil: return
+  try:
+    let maxSize = if state.config.history.maxSize > 0: state.config.history.maxSize else: 1000
+    discard state.store.insertRow("history", row({
+      "cmd": newTextValue(cmd),
+      "ts": newIntValue(epochTime().int64)
+    }))
+    let tbl = state.store.getTable("history").get()
+    var count = 0
+    var toDelete: seq[string]
+    for pk, _ in tbl.allRows():
+      inc count
+      if count > maxSize:
+        toDelete.add(pk)
+    for pk in toDelete:
+      discard state.store.deleteRow("history", pk)
+  finally:
+    closeHistoryStore(state)
 
-proc loadAllHistory*(state: ShellState): seq[string] =
-  let tbl = state.store.getTable("history").get()
-  for pk, row in tbl.allRows():
-    result.add(row["cmd"].strVal)
+proc loadAllHistory*(state: var ShellState): seq[string] =
+  ensureHistoryStore(state)
+  if state.store.isNil: return @[]
+  try:
+    let tbl = state.store.getTable("history").get()
+    for pk, row in tbl.allRows():
+      result.add(row["cmd"].strVal)
+  finally:
+    closeHistoryStore(state)
 
 proc getHistory*(state: var ShellState, n: int = 20): seq[(string, string, int64)] =
   ensureHistoryStore(state)
-  let tbl = state.store.getTable("history").get()
-  var entries: seq[(string, string, int64)]
-  for pk, row in tbl.allRows():
-    entries.add((pk, row["cmd"].strVal, row["ts"].intVal))
-  if entries.len > n:
-    entries = entries[entries.len - n .. ^1]
-  entries
+  if state.store.isNil: return @[]
+  try:
+    let tbl = state.store.getTable("history").get()
+    var entries: seq[(string, string, int64)]
+    for pk, row in tbl.allRows():
+      entries.add((pk, row["cmd"].strVal, row["ts"].intVal))
+    if entries.len > n:
+      entries = entries[entries.len - n .. ^1]
+    entries
+  finally:
+    closeHistoryStore(state)

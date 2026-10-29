@@ -247,6 +247,9 @@ proc ctrlRightArrowKeyProc(ctx: var EscapeCtx, c: char32): char32 =
 proc ctrlLeftArrowKeyProc(ctx: var EscapeCtx, c: char32): char32 =
   ctx.thisKey or CTRL or LEFT_ARROW_KEY
 
+proc shiftTabKeyProc(ctx: var EscapeCtx, c: char32): char32 =
+  ctx.thisKey or SHIFT_TAB_KEY
+
 proc escFailureProc(ctx: var EscapeCtx, c: char32): char32 =
   var cur = c
   while true:
@@ -348,13 +351,13 @@ proc sgrmouseProc(ctx: var EscapeCtx, c: char32): char32 =
       return 0 # unexpected final byte; swallow and ignore
 
 # Handle ESC [ <more stuff> escape sequences
-let escLBracketDispatch = ("ABCDHF0123456789<M", [
+let escLBracketDispatch = ("ABCDHF0123456789<MZ", [
   upArrowKeyProc.DispatchProc, downArrowKeyProc,
   rightArrowKeyProc, leftArrowKeyProc, homeKeyProc, endKeyProc,
   escLBracket0Proc, escLBracket1Proc, escLBracket2Proc,
   escLBracket3Proc, escLBracket4Proc, escLBracket5Proc,
   escLBracket6Proc, escLBracket7Proc, escLBracket8Proc,
-  escLBracket9Proc, sgrmouseProc, x10mouseProc, escFailureProc])
+  escLBracket9Proc, sgrmouseProc, x10mouseProc, shiftTabKeyProc, escFailureProc])
 
 # Handle ESC O <char> escape sequences
 let escODispatch = ("ABCDHFabcd", [

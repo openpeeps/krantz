@@ -6,24 +6,26 @@
 
 import std/[os, osproc]
 
-const pyFile = currentSourcePath().parentDir() / "test_interactive.py"
+const nimSuite = currentSourcePath().parentDir() / "test_interactive.nim"
 
 proc findKrantz(): string =
   let envBin = getEnv("KRANTZ")
   if envBin.len > 0:
     return envBin
-  let build = execCmdEx("nimble build -y", options = {poStdErrToStdOut, poUsePath})
+  let build = execCmdEx("clue build", options = {poStdErrToStdOut, poUsePath})
   if build.exitCode != 0:
     stderr.writeLine "krantz build failed:\n" & build.output
     quit(1)
-  result = getCurrentDir() / "krantz"
+  result = getCurrentDir() / "bin" / "krantz"
 
 proc main() =
   let krantz = findKrantz()
   echo "testing krantz at: ", krantz
   putEnv("KRANTZ", krantz)
-  let (output, code) = execCmdEx("python3 " & quoteShell(pyFile),
-    options = {poStdErrToStdOut, poUsePath})
+  var cmd = "nim r " & quoteShell(nimSuite)
+  for i in 1 .. paramCount():
+    cmd.add(" " & quoteShell(paramStr(i)))
+  let (output, code) = execCmdEx(cmd, options = {poStdErrToStdOut, poUsePath})
   stdout.write(output)
   quit(code)
 

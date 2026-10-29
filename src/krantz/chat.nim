@@ -85,25 +85,28 @@ proc chatRequest(query: string): Future[string] {.async.} =
   let store = openLLMStore()
   if store.isNil:
     return "error: LLM store unavailable"
-  let providers = listProviders(store)
-  if providers.len == 0:
-    return "no LLM provider configured — run 'krantz llm' first"
-  let defaultName = getDefaultProvider(store)
-  var p = providers[^1]
-  for candidate in providers:
-    if candidate.name == defaultName:
-      p = candidate
-      break
-  let client = newLlmClient(p.address, p.key, p.model)
   try:
-    let response = await client.chat(chatMessages(query), defaultOpts,
-      proc(chunk: ResponseChunk) = discard)
-    result = response.chunks
-      .filterIt(it.chunkType == chunkContent)
-      .mapIt(it.text)
-      .join("").strip()
-  except CatchableError as e:
-    result = "error: " & e.msg
+    let providers = listProviders(store)
+    if providers.len == 0:
+      return "no LLM provider configured — run 'krantz llm' first"
+    let defaultName = getDefaultProvider(store)
+    var p = providers[^1]
+    for candidate in providers:
+      if candidate.name == defaultName:
+        p = candidate
+        break
+    let client = newLlmClient(p.address, p.key, p.model)
+    try:
+      let response = await client.chat(chatMessages(query), defaultOpts,
+        proc(chunk: ResponseChunk) = discard)
+      result = response.chunks
+        .filterIt(it.chunkType == chunkContent)
+        .mapIt(it.text)
+        .join("").strip()
+    except CatchableError as e:
+      result = "error: " & e.msg
+  finally:
+    closeLLMStore(store)
 
 proc handleChatCommand*(line: string): int =
   let query = chatQuery(line)

@@ -52,6 +52,15 @@ proc openLLMStore*(): Store =
 
 const defaultProviderKey = "default_provider"
 
+proc closeLLMStore*(store: Store) =
+  ## Flushes and closes the LLM store, releasing its lock. Call after every
+  ## use so concurrent shells never block on a held handle. Best-effort: the
+  ## reference is always dropped so the OS lock is released regardless.
+  if store.isNil: return
+  try: store.close()
+  except CatchableError as e:
+    stderr.writeLine("krantz: LLM store close failed (", e.msg, ")")
+
 proc getSetting(store: Store, key: string): string =
   let tbl = store.getTable("settings").get()
   for pk, row in tbl.allRows():
@@ -148,25 +157,31 @@ proc listProvidersCli*() =
   if store.isNil:
     stderr.writeLine "krantz: LLM store unavailable"
     quit(1)
-  let defaultName = getDefaultProvider(store)
-  let providers = listProviders(store)
-  if providers.len == 0:
-    echo "no LLM providers configured"
-    return
-  echo "LLM providers:"
-  for p in providers:
-    let marker = if p.name == defaultName: " (default)" else: ""
-    echo "  ", p.name, " — ", p.model, marker
-  echo ""
-  echo "switch default with: krantz llm use <provider>"
+  try:
+    let defaultName = getDefaultProvider(store)
+    let providers = listProviders(store)
+    if providers.len == 0:
+      echo "no LLM providers configured"
+      return
+    echo "LLM providers:"
+    for p in providers:
+      let marker = if p.name == defaultName: " (default)" else: ""
+      echo "  ", p.name, " — ", p.model, marker
+    echo ""
+    echo "switch default with: krantz llm use <provider>"
+  finally:
+    closeLLMStore(store)
 
 proc useProviderCli*(name: string) =
   let store = openLLMStore()
   if store.isNil:
     stderr.writeLine "krantz: LLM store unavailable"
     quit(1)
-  if not setDefaultProvider(store, name):
-    stderr.writeLine "krantz: provider not found: ", name
-    quit(1)
-  store.checkpoint()
-  echo "default LLM provider: ", name
+  try:
+    if not setDefaultProvider(store, name):
+      stderr.writeLine "krantz: provider not found: ", name
+      quit(1)
+    store.checkpoint()
+    echo "default LLM provider: ", name
+  finally:
+    closeLLMStore(store)

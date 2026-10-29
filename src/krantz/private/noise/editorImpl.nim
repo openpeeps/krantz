@@ -8,88 +8,110 @@
 
 when promptCompletion:
   proc escapeCompletion(candidate: string): string =
-    for c in candidate:
+    # A leading redirection prefix (`>`, `2>`, `&>`, ...) is shell syntax,
+    # not filename: copy it verbatim. Escaping it would re-parse as a
+    # literal file named e.g. `>f` instead of a redirection into `f`.
+    let start = redirPrefixLen(candidate)
+    result.add(candidate[0 ..< start])
+    for c in candidate[start .. ^1]:
       if c in {' ', '\t', '|', ';', '&', '>', '<', '#', '\'', '"', '\\',
                '$', '`', '(', ')', '*', '?', '[', ']', '{', '}', '!'}:
         result.add('\\')
       result.add(c)
 
-  proc completionText(head, tail, candidate: string): string =
+  proc completionText(head, tail, candidate: string, isDir,
+      unique: bool): string =
     result = head & escapeCompletion(candidate) & tail
-    if head.len > 0 and tail.len == 0 and not candidate.endsWith("/"):
-      result &= " "
+    if head.len > 0 and tail.len == 0:
+      if isDir:
+        # Unambiguous directory match: append "/" so the completion is
+        # visible (without it an exact-dir hit renders identically to what
+        # was already typed) and marks that the path continues into it.
+        # Ambiguous matches stay slashless so TAB keeps cycling siblings
+        # at this level.
+        if unique: result &= "/"
+      else:
+        result &= " "
 
-  proc completeLine(self: var Noise): char32 =
-    let line = self.line.getLine()
+  proc completeLine(self: var Noise, reverse: bool = false): char32 =
+    var line = self.line.getLine()
     let parts = self.line.breakWord()
     if parts.word.len == 0 and parts.head.len == 0: return 0
 
     discard self.completionHook(self, parts.word)
     if self.completionStrings.len == 0: return 0
 
-    var index = 0
-    var inLs = false
-    self.line.updateCompletion(completionText(parts.head,
-      parts.tail, self.completionStrings[index]))
+    # zsh-like: forward TAB starts at first candidate,
+    # Shift+Tab starts at last and walks backwards.
+    # TAB only cycles siblings at the same level; typing "/"
+    # manually is what descends into a directory.
+    var index = if reverse: self.completionStrings.len - 1 else: 0
+    # Recomputed at every render (not cached): descending with "/" reloads the
+    # candidate list, so "unambiguous" must describe the list being shown.
+    # A lone candidate is unambiguous and gets the directory "/" affordance;
+    # ambiguous lists stay slashless so TAB keeps cycling siblings here.
+    template showCandidate() =
+      self.line.updateCompletion(completionText(parts.head,
+        parts.tail, self.completionStrings[index],
+        self.completionDirs[index],
+        self.completionStrings.len == 1))
+
+    showCandidate()
+
+    template stepIndex(backward: bool) =
+      if backward:
+        dec index
+        if index < 0:
+          index = self.completionStrings.len - 1
+      else:
+        inc index
+        if index >= self.completionStrings.len:
+          index = 0
 
     while true:
       var c = readChar()
       c = c.cleanupCtrl
       case c
-      of ctrlChar('I'):
-        if inLs:
-          inc index
-          if index >= self.completionStrings.len:
-            index = 0
-        elif self.completionStrings[index].endsWith("/"):
-          let descend = self.completionStrings[index]
-          self.completionStrings.setLen(0)
-          discard self.completionHook(self, descend)
-          if self.completionStrings.len == 0:
-            self.completionStrings.add(descend)
-            inLs = false
-          else:
-            inLs = true
-          index = 0
-        else:
-          inc index
-          if index >= self.completionStrings.len:
-            index = 0
-        self.line.updateCompletion(completionText(parts.head,
-          parts.tail, self.completionStrings[index]))
+      of ctrlChar('I'), SHIFT_TAB_KEY:
+        stepIndex(c == SHIFT_TAB_KEY)
+        showCandidate()
       of ESC_KEY, ctrlChar('C'):
         self.line.updateCompletion(line)
         result = 0
         break
       else:
-        if c == '/'.ord and self.completionStrings[index].endsWith("/"):
-          let descend = self.completionStrings[index]
-          self.completionStrings.setLen(0)
+        if c == '/'.ord and self.completionDirs[index]:
+          # manual "/" descends but keeps the session open so TAB keeps
+          # cycling the children at the new level
+          let descend = self.completionStrings[index] & "/"
+          self.clearCompletions()
           discard self.completionHook(self, descend)
           if self.completionStrings.len > 0:
             index = 0
-            self.line.updateCompletion(completionText(parts.head,
-              parts.tail, self.completionStrings[index]))
-            result = 0
+            showCandidate()
+            line = self.line.getLine()
+            continue
           else:
             result = '/'.ord
+            break
         elif c == ' '.ord and parts.head.len > 0 and parts.tail.len == 0 and
-           not self.completionStrings[index].endsWith("/"):
+           not self.completionDirs[index]:
           # trailing space already inserted by the completion
           result = 0
+          break
         else:
           result = c
-        break
+          break
 
-    self.completionStrings.setLen(0)
+    self.clearCompletions()
 
   proc lineCompletion(self: var Noise, c: char32): EditMode {.cdecl.} =
     result = editNext
 
-    # ctrl-I/tab, command completion, needs to be before switch statement
-    if c == ctrlChar('I') and self.completionHook != nil:
+    # TAB forward / Shift+Tab backward, needs to be before switch statement
+    if (c == ctrlChar('I') or c == SHIFT_TAB_KEY) and self.completionHook != nil:
       # completeLine does the actual completion and replacement
-      let key = self.completeLine()
+      let key = self.completeLine(reverse = c == SHIFT_TAB_KEY)
       self.terminatingKeyStroke = key
 
       if key <= 0: # return on error/cancel

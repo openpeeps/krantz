@@ -5,7 +5,7 @@
 #          https://github.com/georgelemon/krantz
 
 import std/[algorithm, os, posix, sets, strutils, terminal, termios]
-import floof
+import openparser/fuzzy
 import ./private/noise
 import ./private/noise/posixio as noiseio
 
@@ -55,80 +55,122 @@ const X_OK = 1.cint
 proc hiddenFor(prefix: string, name: string): bool =
   name.len > 0 and name[0] == '.' and (prefix.len == 0 or prefix[0] != '.')
 
-proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
-  let expanded = text.expandTilde()
+proc cmpShortestFirst*(a, b: string): int =
+  ## Shortest candidate wins; ties break alphabetically (case-insensitive,
+  ## then case-sensitive for full determinism).
+  if a.len != b.len: return cmp(a.len, b.len)
+  result = cmpIgnoreCase(a, b)
+  if result == 0: result = cmp(a, b)
 
-  # Phase 2: text ends with "/" → list directory contents
-  if text.endsWith("/"):
-    var entries: seq[string]
+proc cmpCompletion(a, b: tuple[path: string, isDir: bool]): int =
+  ## Sort helper for dir-aware candidate lists (slashless paths).
+  cmpShortestFirst(a.path, b.path)
+
+proc splitCompletionKeep(text: string): tuple[keep, core: string] =
+  ## Splits a completion word into a literal prefix (`keep`, re-attached to
+  ## every candidate) and the part actually matched against the filesystem
+  ## (`core`). This keeps `--opt=value` suffixes and redirection targets
+  ## (`>`, `>>`, `<`, `&>`, `2>`) completable now that `=<>...` are word
+  ## characters (zsh WORDCHARS): only `core` drives prefix/fuzzy matching
+  ## and directory walks, while candidates are emitted as `keep & match`.
+  var rest = text
+  var keep = ""
+  let rl = redirPrefixLen(text)
+  if rl > 0:
+    keep = text[0 ..< rl]
+    rest = if rl < text.len: text[rl .. ^1] else: ""
+  if rest.len == 0:
+    return (keep, rest)
+  let eq = rest.rfind('=')
+  if eq >= 0:
+    keep = keep & rest[0 .. eq]
+    rest = rest[eq + 1 .. ^1]
+  (keep, rest)
+
+proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
+  # Only `core` is matched against the filesystem; `keep` (redirection
+  # operators, `name=` prefixes) is prepended back onto every candidate.
+  let (keep, core) = splitCompletionKeep(text)
+  let expanded = core.expandTilde()
+
+  # Phase 2: core ends with "/" → list directory contents.
+  # Children complete without a trailing slash; TAB cycles them at
+  # this level, typing "/" descends further.
+  if core.endsWith("/"):
+    var entries: seq[tuple[path: string, isDir: bool]]
     try:
       for kind, path in walkDir(expanded):
         let entry = path.extractFilename()
         if hiddenFor("", entry): continue
         if kind in {pcDir, pcLinkToDir}:
-          entries.add(text / entry & "/")
+          entries.add((keep & (core / entry), true))
         elif not dirsOnly:
-          entries.add(text / entry)
+          entries.add((keep & (core / entry), false))
     except OSError:
       discard
-    sort(entries, cmpIgnoreCase)
+    sort(entries, cmpCompletion)
     for e in entries:
-      self.addCompletion(e)
+      self.addCompletion(e.path, e.isDir)
     return entries.len
 
-  # Phase 1: text matches an exact directory → add / and siblings
+  # Phase 1: core matches an exact directory → keep it (no slash, so TAB
+  # stays at this level) and offer same-level siblings after it.
   if dirExists(expanded):
     var count = 0
-    self.addCompletion(text & "/")
+    self.addCompletion(text, true)
     inc count
-    let parent = text.parentDir()
-    let basename = text.extractFilename()
+    let parent = core.parentDir()
+    let basename = core.extractFilename()
     let absParent = if parent.len > 0: parent.expandTilde() else: "."
+    var siblings: seq[tuple[path: string, isDir: bool]]
     try:
       for kind, path in walkDir(absParent):
         let name = path.extractFilename()
         if hiddenFor(basename, name): continue
         if name.toLowerAscii() == basename.toLowerAscii(): continue
         if name.len >= basename.len and name.toLowerAscii()[0..<basename.len] == basename.toLowerAscii():
-          let completion = if parent.len > 0: parent / name else: name
+          let completion = keep & (if parent.len > 0: parent / name else: name)
           if kind in {pcDir, pcLinkToDir}:
-            self.addCompletion(completion & "/")
-            inc count
+            siblings.add((completion, true))
           elif not dirsOnly:
-            self.addCompletion(completion)
-            inc count
+            siblings.add((completion, false))
     except OSError:
       discard
+    if siblings.len > 0:
+      sort(siblings, cmpCompletion)
+      for s in siblings:
+        self.addCompletion(s.path, s.isDir)
+        inc count
     return count
 
-  # Phase 3: prefix match
+  # Phase 3: prefix match (dirs complete without trailing slash)
   var dir = "."
-  var prefix = text
-  if text.contains("/") or text.contains("~"):
-    dir = text.parentDir()
-    prefix = text.extractFilename()
+  var prefix = core
+  if core.contains("/") or core.contains("~"):
+    dir = core.parentDir()
+    prefix = core.extractFilename()
 
-  var candidates: seq[string]
+  var candidates: seq[tuple[path: string, isDir: bool]]
   let absDir = dir.expandTilde()
   try:
     for kind, path in walkDir(absDir):
       let name = path.extractFilename()
       if hiddenFor(prefix, name): continue
       if name.len >= prefix.len and name.toLowerAscii()[0..<prefix.len] == prefix.toLowerAscii():
-        let completion = if dir != ".": dir / name else: name
+        let completion = keep & (if dir != ".": dir / name else: name)
         if kind in {pcDir, pcLinkToDir}:
-          candidates.add(completion & "/")
+          candidates.add((completion, true))
         elif not dirsOnly:
-          candidates.add(completion)
+          candidates.add((completion, false))
   except OSError:
     discard
   if candidates.len > 0:
-    sort(candidates, cmpIgnoreCase)
+    sort(candidates, cmpCompletion)
     for c in candidates:
-      self.addCompletion(c)
+      self.addCompletion(c.path, c.isDir)
     result = candidates.len
   elif prefix.len > 0:
-    # Phase 4: fuzzy match fallback (floof)
+    # Phase 4: fuzzy match fallback (openparser/fuzzy, score order kept)
     var haystack: seq[string]
     try:
       for kind, path in walkDir(absDir):
@@ -139,16 +181,15 @@ proc addCandidates(self: var Noise, text: string, dirsOnly: bool): int =
     except OSError:
       discard
     if haystack.len > 0:
-      let matches = floof.search(prefix, haystack)
-      let maxResults = min(matches.len, 10)
-      for i in 0..<maxResults:
-        let name = matches[i].text
-        let completion = if dir != ".": dir / name else: name
+      let matches = fuzzySearch(prefix, haystack, FuzzyOptions(limit: 10))
+      for m in matches:
+        let name = m.text
+        let completion = keep & (if dir != ".": dir / name else: name)
         if dirExists(absDir / name):
-          self.addCompletion(completion & "/")
+          self.addCompletion(completion, true)
         elif not dirsOnly:
           self.addCompletion(completion)
-      result = maxResults
+      result = matches.len
 
 const shellBuiltins = [
   "alias", "bg", "cd", "clear", "echo", "env", "exit", "export", "fg",
@@ -187,7 +228,7 @@ proc commandCandidates(prefix: string): seq[string] =
     if name.len >= prefix.len and name.toLowerAscii()[0..<prefix.len] == lower:
       if result.find(name) < 0:
         result.add name
-  sort(result, cmpIgnoreCase)
+  sort(result, cmpShortestFirst)
 
 proc unescapeWord(word: string): string =
   var i = 0

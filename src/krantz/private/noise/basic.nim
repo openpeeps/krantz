@@ -28,6 +28,7 @@ const
   DELETE_KEY*      = 0x10E00000
   PAGE_UP_KEY*     = 0x11000000
   PAGE_DOWN_KEY*   = 0x11200000
+  SHIFT_TAB_KEY*   = 0x11400000 # Shift+Tab, sent by terminals as ESC [ Z
 
   PROMPT_MAX_LINE* = 4096
 

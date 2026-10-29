@@ -28,10 +28,9 @@ proc runShell() =
   proc ensureHistory() =
     # History is read once from the store into the in-memory (noise) history so
     # Up/Down navigation can walk it in place. Only opened on first use, keeping
-    # non-interactive runs lazy.
+    # non-interactive runs lazy. Each op brackets open/close (see history.nim),
+    # so the lock is never held while idle and concurrent shells don't wedge.
     if not state.historyLoaded:
-      if state.store.isNil:
-        openHistoryStore(state)
       historyList = loadAllHistory(state)
       if interactive:
         for h in historyList:
@@ -142,38 +141,46 @@ proc printUsage() =
   echo ""
   echo "Run without arguments to enter the REPL shell."
 
+proc cmpShortestFirst(a, b: string): int =
+  if a.len != b.len: return cmp(a.len, b.len)
+  result = cmpIgnoreCase(a, b)
+  if result == 0: result = cmp(a, b)
+
 proc doComplete(word: string) =
   let expanded = word.expandTilde()
 
-  # Phase 2: ends with / → list contents
+  # Phase 2: ends with / → list contents (no trailing slash on dirs)
   if word.endsWith("/"):
+    var entries: seq[string]
     try:
-      for kind, path in walkDir(expanded):
+      for _, path in walkDir(expanded):
         let entry = path.extractFilename()
-        if kind in {pcDir, pcLinkToDir}:
-          echo word / entry & "/"
-        else:
-          echo word / entry
+        entries.add(word / entry)
     except OSError: discard
+    sort(entries, cmpShortestFirst)
+    for e in entries:
+      echo e
     return
 
-  # Phase 1: exact directory → add / and siblings
+  # Phase 1: exact directory → keep it (no slash) and list same-level siblings
   if dirExists(expanded):
-    echo word & "/"
+    echo word
     let parent = word.parentDir()
     let basename = word.extractFilename()
     let absParent = if parent.len > 0: parent.expandTilde() else: "."
+    var siblings: seq[string]
     try:
-      for kind, path in walkDir(absParent):
+      for _, path in walkDir(absParent):
         let name = path.extractFilename()
         if name.toLowerAscii() == basename.toLowerAscii(): continue
         if name.len >= basename.len and name.toLowerAscii()[0..<basename.len] == basename.toLowerAscii():
           let completion = if parent.len > 0: parent / name else: name
-          if kind in {pcDir, pcLinkToDir}:
-            echo completion & "/"
-          else:
-            echo completion
+          siblings.add(completion)
     except OSError: discard
+    if siblings.len > 0:
+      sort(siblings, cmpShortestFirst)
+      for s in siblings:
+        echo s
     return
 
   # Phase 3: prefix match
@@ -186,17 +193,14 @@ proc doComplete(word: string) =
 
   var candidates: seq[string]
   try:
-    for kind, path in walkDir(absDir):
+    for _, path in walkDir(absDir):
       let name = path.extractFilename()
       if name.len >= prefix.len and name.toLowerAscii()[0..<prefix.len] == prefix.toLowerAscii():
         let completion = if dir != ".": dir / name else: name
-        if kind in {pcDir, pcLinkToDir}:
-          candidates.add(completion & "/")
-        else:
-          candidates.add(completion)
+        candidates.add(completion)
   except OSError: discard
   if candidates.len > 0:
-    sort(candidates, cmpIgnoreCase)
+    sort(candidates, cmpShortestFirst)
     for c in candidates:
       echo c
 
@@ -246,6 +250,7 @@ proc dispatchCli(args: seq[string]) =
       let model = readValue("model id: ")
       saveProvider(store, name, address, key, model)
       store.checkpoint()
+      closeLLMStore(store)
       echo "stored LLM provider: ", name
     else:
       stderr.writeLine "usage: krantz llm [<provider>|list|use <provider>]"

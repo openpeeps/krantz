@@ -52,6 +52,7 @@ when promptBasic:
       when promptCompletion:
         completionHook: CompletionHook
         completionStrings: seq[string]
+        completionDirs: seq[bool]
       when promptPreloadBuffer:
         preloadText: string
         preloadError: string
@@ -64,6 +65,11 @@ when promptBasic:
       procs: seq[EditProc]
 
 when promptBasic:
+  when promptCompletion:
+    proc clearCompletions*(self: var Noise) =
+      self.completionStrings.setLen(0)
+      self.completionDirs.setLen(0)
+
   include noise/editorImpl
 
   proc init*(x: typedesc[Noise]): Noise =
@@ -248,8 +254,9 @@ when promptCompletion:
   proc setCompletionHook*(self: var Noise, prc: CompletionHook) =
     self.completionHook = prc
 
-  proc addCompletion*(self: var Noise, text: string) =
+  proc addCompletion*(self: var Noise, text: string, isDir = false) =
     self.completionStrings.add text
+    self.completionDirs.add isDir
 
 when promptPreloadBuffer:
   #  preloadBuffer provides text to be inserted into the command buffer.

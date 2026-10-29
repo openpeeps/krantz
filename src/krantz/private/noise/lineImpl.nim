@@ -311,7 +311,31 @@ when promptCompletion:
   proc makeSet(s: string): set[char] {.compileTime.} =
     for c in s: result.incl c
 
-  const breakChars = makeSet(" =+-\\*?'`&<>;|@{([])}\"")
+  # Word-break chars for completion only (breakWord below is used solely by
+  # the completion path). Aligned with zsh's default WORDCHARS
+  # (*?_-.[]~=/&;!#$%^(){}<>): every char zsh treats as a word char is a
+  # word char here too, except `[`/`]` (kept as breaks, as in zsh). This
+  # keeps dashed names (`supranim-packages`), `--opt=value` and `>file`
+  # targets as single completable words.
+  const breakChars = makeSet(" +\\'`|@[]\"")
+
+  proc redirPrefixLen*(s: string): int =
+    ## Length of a leading shell-redirection prefix (`>`, `>>`, `<`, `<>`,
+    ## `&>`, `2>`, `2>>`, ...), or 0 when `s` does not start with one.
+    ## Shared by completion matching (term.nim) and candidate escaping
+    ## (editorImpl.nim) so redirection targets stay completable without
+    ## escaping the operator itself.
+    var i = 0
+    while i < s.len and s[i] in {'0'..'9'}: inc i
+    if i < s.len and s[i] in {'<', '>', '&'}:
+      if s[i] == '&':
+        if i + 1 < s.len and s[i + 1] in {'<', '>'}:
+          return i + 2
+        return 0 # lone `&` is not redirection
+      var j = i
+      while j < s.len and s[j] in {'<', '>'}: inc j
+      return j
+    0
 
   proc validChar(self: Line, index: int): bool =
     if index < 0 or index > self.data.len:
