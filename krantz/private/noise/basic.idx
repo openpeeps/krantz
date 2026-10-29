@@ -14,14 +14,15 @@ nim	END_KEY	krantz/private/noise/basic.html#END_KEY	const END_KEY		27
 nim	DELETE_KEY	krantz/private/noise/basic.html#DELETE_KEY	const DELETE_KEY		28
 nim	PAGE_UP_KEY	krantz/private/noise/basic.html#PAGE_UP_KEY	const PAGE_UP_KEY		29
 nim	PAGE_DOWN_KEY	krantz/private/noise/basic.html#PAGE_DOWN_KEY	const PAGE_DOWN_KEY		30
-nim	PROMPT_MAX_LINE	krantz/private/noise/basic.html#PROMPT_MAX_LINE	const PROMPT_MAX_LINE		32
-nim	ctrlChar	krantz/private/noise/basic.html#ctrlChar.t,char	template ctrlChar(x: char): int		34
-nim	altChar	krantz/private/noise/basic.html#altChar.t,char	template altChar(x: char): int		37
-nim	cleanupCtrl	krantz/private/noise/basic.html#cleanupCtrl,char32	proc cleanupCtrl(c: char32): char32		42
-nim	isControlChar	krantz/private/noise/basic.html#isControlChar,char32	proc isControlChar(testChar: char32): bool		53
-nim	beep	krantz/private/noise/basic.html#beep	proc beep()		57
-nim	calcScreenPos	krantz/private/noise/basic.html#calcScreenPos,int,int,int,int	proc calcScreenPos(x, y, screenColumns, charCount: int): tuple[x, y: int]		67
-nim	isAlphaNum	krantz/private/noise/basic.html#isAlphaNum,char32	proc isAlphaNum(c: char32): bool		92
-nim	oneWordLeft	krantz/private/noise/basic.html#oneWordLeft,int,seq[char32]	proc oneWordLeft(pos: int; data: seq[char32]): int		95
-nim	oneWordRight	krantz/private/noise/basic.html#oneWordRight,int,seq[char32],int	proc oneWordRight(pos: int; data: seq[char32]; len: int): int		102
-nim	isUnsupportedTerm	krantz/private/noise/basic.html#isUnsupportedTerm	proc isUnsupportedTerm(): bool		109
+nim	SHIFT_TAB_KEY	krantz/private/noise/basic.html#SHIFT_TAB_KEY	const SHIFT_TAB_KEY		31
+nim	PROMPT_MAX_LINE	krantz/private/noise/basic.html#PROMPT_MAX_LINE	const PROMPT_MAX_LINE		33
+nim	ctrlChar	krantz/private/noise/basic.html#ctrlChar.t,char	template ctrlChar(x: char): int		35
+nim	altChar	krantz/private/noise/basic.html#altChar.t,char	template altChar(x: char): int		38
+nim	cleanupCtrl	krantz/private/noise/basic.html#cleanupCtrl,char32	proc cleanupCtrl(c: char32): char32		43
+nim	isControlChar	krantz/private/noise/basic.html#isControlChar,char32	proc isControlChar(testChar: char32): bool		54
+nim	beep	krantz/private/noise/basic.html#beep	proc beep()		58
+nim	calcScreenPos	krantz/private/noise/basic.html#calcScreenPos,int,int,int,int	proc calcScreenPos(x, y, screenColumns, charCount: int): tuple[x, y: int]		68
+nim	isAlphaNum	krantz/private/noise/basic.html#isAlphaNum,char32	proc isAlphaNum(c: char32): bool		93
+nim	oneWordLeft	krantz/private/noise/basic.html#oneWordLeft,int,seq[char32]	proc oneWordLeft(pos: int; data: seq[char32]): int		96
+nim	oneWordRight	krantz/private/noise/basic.html#oneWordRight,int,seq[char32],int	proc oneWordRight(pos: int; data: seq[char32]; len: int): int		103
+nim	isUnsupportedTerm	krantz/private/noise/basic.html#isUnsupportedTerm	proc isUnsupportedTerm(): bool		110

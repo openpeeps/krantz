@@ -16,10 +16,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="../../nimdoc.out.css?v=2.2.10">
+<link rel="stylesheet" type="text/css" href="../../nimdoc.out.css?v=2.4.0">
 
 <!-- JS -->
-<script type="text/javascript" src="../../dochack.js?v=2.2.10"></script>
+<script type="text/javascript" src="../../dochack.js?v=2.4.0"></script>
 </head>
 <body>
   <div class="document" id="documentId">
@@ -31,28 +31,34 @@
       <div class="row">
   <div class="three columns">
     <div class="theme-select-wrapper">
-      <label for="theme-select">Theme:&nbsp;</label>
-      <select id="theme-select" onchange="setTheme(this.value)">
-        <option value="auto">🌗 Match OS</option>
-        <option value="dark">🌑 Dark</option>
-        <option value="light">🌕 Light</option>
-      </select>
-    </div>
+  <label for="theme-select">Theme:&nbsp;</label>
+  <select id="theme-select" onchange="setTheme(this.value)">
+    <option value="auto">🌗 Match OS</option>
+    <option value="dark">🌑 Dark</option>
+    <option value="light">🌕 Light</option>
+  </select>
+</div>
+
     <div id="global-links">
-      <ul class="simple">
-        <li><a id="indexLink" href="../../theindex.html">Index</a></li>
-      </ul>
-    </div>
-    <div id="searchInputDiv">
-      Search: <input type="search" id="searchInput" oninput="search()"/>
-    </div>
-    <div>
-      Group by:
-      <select onchange="groupBy(this.value)">
-        <option value="section">Section</option>
-        <option value="type">Type</option>
-      </select>
-    </div>
+  
+  <ul class="simple">
+  <li><a id="indexLink" href="../../theindex.html">Index</a></li>
+</ul>
+
+</div>
+
+      <div id="searchInputDiv">
+  Search: <input type="search" id="searchInput" oninput="search()"/>
+</div>
+
+    <div class="search-groupby">
+  Group by:
+  <select onchange="groupBy(this.value)">
+    <option value="section">Section</option>
+    <option value="type">Type</option>
+  </select>
+</div>
+
     <ul class="simple simple-toc" id="toc-list">
   <li>
   <a class="reference reference-toplevel" href="#6" id="56">Imports</a>
@@ -65,10 +71,10 @@
 <li><a class="reference" href="#KeyType" title="KeyType = enum
   ktNone, ktCtrlC, ktCtrlD, ktCtrlX, ktEsc">KeyType</a></li>
 <li><a class="reference" href="#Noise" title="Noise = object
-  when promptHistory:
-  when promptKill:
-  when promptCompletion:
-  when promptPreloadBuffer:">Noise</a></li>
+  when true:
+  when true:
+  when true:
+  when true:">Noise</a></li>
 
     </ul>
   </details>
@@ -95,7 +101,11 @@
     <summary><a class="reference reference-toplevel" href="#12" id="62">Procs</a></summary>
     <ul class="simple simple-toc-section">
       <ul class="simple nested-toc-section">addCompletion
-  <li><a class="reference" href="#addCompletion%2CNoise%2Cstring" title="addCompletion(self: var Noise; text: string)">addCompletion(self: var Noise; text: string)</a></li>
+  <li><a class="reference" href="#addCompletion%2CNoise%2Cstring" title="addCompletion(self: var Noise; text: string; isDir = false)">addCompletion(self: var Noise; text: string; isDir = false)</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">clearCompletions
+  <li><a class="reference" href="#clearCompletions%2CNoise" title="clearCompletions(self: var Noise)">clearCompletions(self: var Noise)</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">getKeyType
@@ -144,6 +154,10 @@
 </ul>
 <ul class="simple nested-toc-section">readLine
   <li><a class="reference" href="#readLine%2CNoise" title="readLine(self: var Noise): bool">readLine(self: var Noise): bool</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">redirPrefixLen
+  <li><a class="reference" href="#redirPrefixLen%2Cstring" title="redirPrefixLen(s: string): int">redirPrefixLen(s: string): int</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">setCompletionHook
@@ -215,10 +229,10 @@
 </div>
 <div id="Noise">
   <dt><pre><a href="#Noise"><span class="Identifier">Noise</span></a> <span class="Other">=</span> <span class="Keyword">object</span>
-  <span class="Keyword">when</span> <span class="Identifier">promptHistory</span><span class="Other">:</span>
-  <span class="Keyword">when</span> <span class="Identifier">promptKill</span><span class="Other">:</span>
-  <span class="Keyword">when</span> <span class="Identifier">promptCompletion</span><span class="Other">:</span>
-  <span class="Keyword">when</span> <span class="Identifier">promptPreloadBuffer</span><span class="Other">:</span></pre></dt>
+  <span class="Keyword">when</span> <span class="Identifier">true</span><span class="Other">:</span>
+  <span class="Keyword">when</span> <span class="Identifier">true</span><span class="Other">:</span>
+  <span class="Keyword">when</span> <span class="Identifier">true</span><span class="Other">:</span>
+  <span class="Keyword">when</span> <span class="Identifier">true</span><span class="Other">:</span></pre></dt>
   <dd>
     
     
@@ -311,8 +325,19 @@
   <dl class="item">
     <div id="addCompletion-procs-all">
   <div id="addCompletion,Noise,string">
-  <dt><pre><span class="Keyword">proc</span> <a href="#addCompletion%2CNoise%2Cstring"><span class="Identifier">addCompletion</span></a><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Noise"><span class="Identifier">Noise</span></a><span class="Other">;</span> <span class="Identifier">text</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#addCompletion%2CNoise%2Cstring"><span class="Identifier">addCompletion</span></a><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Noise"><span class="Identifier">Noise</span></a><span class="Other">;</span> <span class="Identifier">text</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">isDir</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="clearCompletions-procs-all">
+  <div id="clearCompletions,Noise">
+  <dt><pre><span class="Keyword">proc</span> <a href="#clearCompletions%2CNoise"><span class="Identifier">clearCompletions</span></a><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Noise"><span class="Identifier">Noise</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -461,6 +486,17 @@
 </div>
 
 </div>
+<div id="redirPrefixLen-procs-all">
+  <div id="redirPrefixLen,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#redirPrefixLen%2Cstring"><span class="Identifier">redirPrefixLen</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Length of a leading shell-redirection prefix (<tt class="docutils literal"><span class="pre"><span class="Operator">&gt;</span></span></tt>, <tt class="docutils literal"><span class="pre"><span class="Operator">&gt;&gt;</span></span></tt>, <tt class="docutils literal"><span class="pre"><span class="Operator">&lt;</span></span></tt>, <tt class="docutils literal"><span class="pre"><span class="Operator">&lt;&gt;</span></span></tt>, <tt class="docutils literal"><span class="pre"><span class="Operator">&amp;&gt;</span></span></tt>, <tt class="docutils literal"><span class="pre"><span class="DecNumber">2</span><span class="Operator">&gt;</span></span></tt>, <tt class="docutils literal"><span class="pre"><span class="DecNumber">2</span><span class="Operator">&gt;&gt;</span></span></tt>, ...), or 0 when <tt class="docutils literal"><span class="pre"><span class="Identifier">s</span></span></tt> does not start with one. Shared by completion matching (term.nim) and candidate escaping (editorImpl.nim) so redirection targets stay completable without escaping the operator itself.
+    
+  </dd>
+</div>
+
+</div>
 <div id="setCompletionHook-procs-all">
   <div id="setCompletionHook,Noise,CompletionHook">
   <dt><pre><span class="Keyword">proc</span> <a href="#setCompletionHook%2CNoise%2CCompletionHook"><span class="Identifier">setCompletionHook</span></a><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Noise"><span class="Identifier">Noise</span></a><span class="Other">;</span> <span class="Identifier">prc</span><span class="Other">:</span> <a href="#CompletionHook"><span class="Identifier">CompletionHook</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
@@ -529,7 +565,7 @@
 <div class="section" id="19">
   <h1><a class="toc-backref" href="#19">Exports</a></h1>
   <dl class="item">
-    <a href="noise/styler.html#init.m,typedesc[Styler],varargs[typed]"><span class="Identifier">init</span></a>, <a href="noise/styler.html#addCmd,Styler,ForegroundColor"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#newStyler"><span class="Identifier">newStyler</span></a>, <a href="noise/styler.html#addCmd,Styler,BackgroundColor"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#clear,Styler"><span class="Identifier">clear</span></a>, <a href="noise/styler.html#addCmd,Styler,TerminalCmd"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#addCmd,Styler,string"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#update,Styler,int,set[Style]"><span class="Identifier">update</span></a>, <a href="noise/styler.html#addCmd,Styler,Color"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#update,Styler,int,Style"><span class="Identifier">update</span></a>, <a href="noise/styler.html#show,Styler"><span class="Identifier">show</span></a>, <a href="noise/styler.html#update,Styler,int,BackgroundColor"><span class="Identifier">update</span></a>, <a href="noise/styler.html#addCmd,Styler,Style"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#style.m,Styler,varargs[typed]"><span class="Identifier">style</span></a>, <a href="noise/styler.html#addCmd,Styler,set[Style]"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#update,Styler,int,string"><span class="Identifier">update</span></a>, <a href="noise/styler.html#Styler"><span class="Identifier">Styler</span></a>, <a href="noise/styler.html#update,Styler,int,Color"><span class="Identifier">update</span></a>, <a href="noise/styler.html#update,Styler,int,ForegroundColor"><span class="Identifier">update</span></a>, <a href="noise/styler.html#pairs.i,Styler"><span class="Identifier">pairs</span></a>
+    <a href="noise/styler.html#Styler"><span class="Identifier">Styler</span></a>, <a href="noise/styler.html#addCmd,Styler,string"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#addCmd,Styler,Style"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#addCmd,Styler,set[Style]"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#addCmd,Styler,ForegroundColor"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#addCmd,Styler,BackgroundColor"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#addCmd,Styler,Color"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#addCmd,Styler,TerminalCmd"><span class="Identifier">addCmd</span></a>, <a href="noise/styler.html#clear,Styler"><span class="Identifier">clear</span></a>, <a href="noise/styler.html#init.m,typedesc[Styler],varargs[typed]"><span class="Identifier">init</span></a>, <a href="noise/styler.html#newStyler"><span class="Identifier">newStyler</span></a>, <a href="noise/styler.html#pairs.i,Styler"><span class="Identifier">pairs</span></a>, <a href="noise/styler.html#show,Styler"><span class="Identifier">show</span></a>, <a href="noise/styler.html#style.m,Styler,varargs[typed]"><span class="Identifier">style</span></a>, <a href="noise/styler.html#update,Styler,int,string"><span class="Identifier">update</span></a>, <a href="noise/styler.html#update,Styler,int,Style"><span class="Identifier">update</span></a>, <a href="noise/styler.html#update,Styler,int,set[Style]"><span class="Identifier">update</span></a>, <a href="noise/styler.html#update,Styler,int,ForegroundColor"><span class="Identifier">update</span></a>, <a href="noise/styler.html#update,Styler,int,BackgroundColor"><span class="Identifier">update</span></a>, <a href="noise/styler.html#update,Styler,int,Color"><span class="Identifier">update</span></a>
   </dl>
 </div>
 
@@ -539,7 +575,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-13 09:28:31 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-10-29 23:14:27 UTC</small>
       </div>
     </div>
   </div>

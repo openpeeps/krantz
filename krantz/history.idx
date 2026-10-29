@@ -1,6 +1,7 @@
 nimTitle	history	krantz/history.html	module krantz/history		0
 nim	openHistoryStore	krantz/history.html#openHistoryStore,ShellState	proc openHistoryStore(state: var ShellState)		12
-nim	ensureHistoryStore	krantz/history.html#ensureHistoryStore,ShellState	proc ensureHistoryStore(state: var ShellState)		43
-nim	addHistory	krantz/history.html#addHistory,ShellState,string	proc addHistory(state: var ShellState; cmd: string)		49
-nim	loadAllHistory	krantz/history.html#loadAllHistory,ShellState	proc loadAllHistory(state: ShellState): seq[string]		66
-nim	getHistory	krantz/history.html#getHistory,ShellState,int	proc getHistory(state: var ShellState; n: int = 20): seq[(string, string, int64)]		71
+nim	ensureHistoryStore	krantz/history.html#ensureHistoryStore,ShellState	proc ensureHistoryStore(state: var ShellState)		45
+nim	closeHistoryStore	krantz/history.html#closeHistoryStore,ShellState	proc closeHistoryStore(state: var ShellState)		51
+nim	addHistory	krantz/history.html#addHistory,ShellState,string	proc addHistory(state: var ShellState; cmd: string)		64
+nim	loadAllHistory	krantz/history.html#loadAllHistory,ShellState	proc loadAllHistory(state: var ShellState): seq[string]		85
+nim	getHistory	krantz/history.html#getHistory,ShellState,int	proc getHistory(state: var ShellState; n: int = 20): seq[(string, string, int64)]		95

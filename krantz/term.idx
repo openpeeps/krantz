@@ -3,12 +3,13 @@ nim	terminalWidth	krantz/term.html#terminalWidth	proc terminalWidth(): int		22
 nim	visibleLength	krantz/term.html#visibleLength,string	proc visibleLength(s: string): int		29
 nim	isTerminal	krantz/term.html#isTerminal,cint	proc isTerminal(fd: cint): bool		48
 nim	gNoise	krantz/term.html#gNoise	var gNoise		51
-nim	resetTerminalModes	krantz/term.html#resetTerminalModes	proc resetTerminalModes()		222
-nim	drainStdin	krantz/term.html#drainStdin	proc drainStdin()		230
-nim	prepareChildTerminal	krantz/term.html#prepareChildTerminal	proc prepareChildTerminal()		257
-nim	initTerminal	krantz/term.html#initTerminal	proc initTerminal()		260
-nim	readLineInput	krantz/term.html#readLineInput,Styler	proc readLineInput(prompt: Styler): tuple[success: bool, line: string]		269
-nim	historySaveToFile	krantz/term.html#historySaveToFile,string	proc historySaveToFile(path: string)		276
-nim	historyLoadFromFile	krantz/term.html#historyLoadFromFile,string	proc historyLoadFromFile(path: string)		279
-nim	isShuttingDown	krantz/term.html#isShuttingDown	proc isShuttingDown(): bool		282
-nim	emitCurrentDir	krantz/term.html#emitCurrentDir,string	proc emitCurrentDir(dir: string)		285
+nim	cmpShortestFirst	krantz/term.html#cmpShortestFirst,string,string	proc cmpShortestFirst(a, b: string): int		58
+nim	resetTerminalModes	krantz/term.html#resetTerminalModes	proc resetTerminalModes()		263
+nim	drainStdin	krantz/term.html#drainStdin	proc drainStdin()		271
+nim	prepareChildTerminal	krantz/term.html#prepareChildTerminal	proc prepareChildTerminal()		298
+nim	initTerminal	krantz/term.html#initTerminal	proc initTerminal()		301
+nim	readLineInput	krantz/term.html#readLineInput,Styler	proc readLineInput(prompt: Styler): tuple[success: bool, line: string]		310
+nim	historySaveToFile	krantz/term.html#historySaveToFile,string	proc historySaveToFile(path: string)		317
+nim	historyLoadFromFile	krantz/term.html#historyLoadFromFile,string	proc historyLoadFromFile(path: string)		320
+nim	isShuttingDown	krantz/term.html#isShuttingDown	proc isShuttingDown(): bool		323
+nim	emitCurrentDir	krantz/term.html#emitCurrentDir,string	proc emitCurrentDir(dir: string)		326

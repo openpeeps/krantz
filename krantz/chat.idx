@@ -1,4 +1,4 @@
 nimTitle	chat	krantz/chat.html	module krantz/chat		0
 nim	isChatCommand	krantz/chat.html#isChatCommand,string	proc isChatCommand(line: string): bool		71
 nim	chatQuery	krantz/chat.html#chatQuery,string	proc chatQuery(line: string): string		74
-nim	handleChatCommand	krantz/chat.html#handleChatCommand,string	proc handleChatCommand(line: string): int		108
+nim	handleChatCommand	krantz/chat.html#handleChatCommand,string	proc handleChatCommand(line: string): int		111
